@@ -12,6 +12,7 @@ Monomer('FAD', ['a', 'state'], {'state': ['nc', 'c']})
 Monomer('Dicarb', ['a'])
 Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
+# TODO: BCD and AF2 share a binding site to A
 Monomer('BCD', ['a'])
 
 # Monomer('A_FADc_BCD')
@@ -265,9 +266,10 @@ Rule('A_AF2_AF4_binds_Dicarb',
 
 Parameter('k_a_fadnc_dicarb_to_fadc', 1)
 
+# NOTE: Dicarb dissociates from the complex upon FAD state change (thin black arrow on schematic)
 Rule('A_FADnc_Dicarb_to_FADc',
-     A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='nc') >>
-     A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c'),
+     A(af2=None, af4=None, fad=1, dicarb=2, bcd=None) % FAD(a=1, state='nc') % Dicarb(a=2) >>
+     A(af2=None, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='c') + Dicarb(a=None),
      k_a_fadnc_dicarb_to_fadc)
 
 # A-FADnc-Dicarb-AF2 state change
@@ -317,6 +319,9 @@ Parameter('k_a_fadc_dicarb_unbinds_dicarb', 1)
 Parameter('k_a_fadc_af2_unbinds_af2', 1)
 Parameter('k_a_fadc_af4_unbinds_af4', 1)
 
+# NOTE: Sequence of unbinding events is currently unknown
+# Currently modeling dissociation events as independent - May change this in the future
+
 Rule('A_FADc_Dicarb_unbinds_Dicarb',
      A(fad=1, dicarb=2, bcd=None) % FAD(a=1, state='c') % Dicarb(a=2) >>
      A(fad=1, dicarb=None, bcd=None) % FAD(a=1, state='c') + Dicarb(a=None),
@@ -334,30 +339,35 @@ Rule('A_FADc_AF4_unbinds_AF4',
 
 ##########
 
-# Formation of inactive CII
+# Formation of partially active CII (w/ non-covalent FAD)
 
 Parameter('k_a_fadnc_af2_binds_bcd', 1)
 Parameter('k_a_fadnc_af4_binds_bcd', 1)
 
-Rule('A_FADnc_AF2_binds_BCD',
-     A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
-     A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
+Rule('A_FADnc_binds_BCD',
+     A(af2=None, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
+     A(af2=None, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
      k_a_fadnc_af2_binds_bcd)
 
-Rule('A_FADnc_AF4_binds_BCD',
-     A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
-     A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
-     k_a_fadnc_af4_binds_bcd)
+# Rule('A_FADnc_AF2_binds_BCD',
+#      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
+#      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
+#      k_a_fadnc_af2_binds_bcd)
+
+# Rule('A_FADnc_AF4_binds_BCD',
+#      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
+#      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
+#      k_a_fadnc_af4_binds_bcd)
 
 # Formation of active CII
 
 Parameter('k_a_fadc_dicarb_binds_bcd', 1)
 Parameter('k_a_fadc_binds_bcd', 1)
 
-Rule('A_FADc_Dicarb_binds_BCD',
-     A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
-     A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
-     k_a_fadc_dicarb_binds_bcd)
+# Rule('A_FADc_Dicarb_binds_BCD',
+#      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
+#      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
+#      k_a_fadc_dicarb_binds_bcd)
 
 Rule('A_FADc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
@@ -365,17 +375,24 @@ Rule('A_FADc_binds_BCD',
      k_a_fadc_binds_bcd)
 
 Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None, bcd=None))
-Observable('Inactive_SDHA', A(fad=None, bcd=None))
+Observable('SDHA_without_FAD', A(fad=None, bcd=None))
 Observable('SDHA_FADnc', A(fad=1, bcd=None) % FAD(a=1, state='nc'))
 Observable('SDHA_FADc', A(fad=1, bcd=None) % FAD(a=1, state='c'))
-Observable('CII_w_FADnc', A(fad=1, bcd=ANY) % FAD(a=1, state='nc'))
+Observable('CII_with_FADnc', A(fad=1, bcd=ANY) % FAD(a=1, state='nc'))
 Observable('Active_CII', A(fad=1, bcd=ANY) % FAD(a=1, state='c'))
+
+print(len(model.parameters))
+print(model.parameters)
 
 # simulation commands
 
 tspan = np.linspace(0, 10, 101)
 sim = ScipyOdeSimulator(model, tspan, verbose=True)
 out = sim.run()
+
+# print()
+# print(len(model.species))
+# quit()
 
 # for i, sp in enumerate(model.species):
 #     print(i, sp)
