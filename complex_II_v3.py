@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # TODO: Volume factor for 2nd-order rate constants
+# TODO: Made a plot similar to Fig. 3A from Maklashina et al. (2022). Next time, do the same for Figs. 3B and 3C
 
 Model()
 
@@ -261,7 +262,9 @@ Rule('A_AF2_AF4_binds_Dicarb',
 
 # A-FADnc-Dicarb state change
 
-Parameter('k_a_fadnc_dicarb_to_fadc', 1)
+# TODO: This is the rate constant to change to model flavinylation in the absence of AF2
+#  (SdhE in Maklashina et al. 2022)
+Parameter('k_a_fadnc_dicarb_to_fadc', 5)
 
 # NOTE: Dicarb dissociates from the complex upon FAD state change (thin black arrow on schematic)
 Rule('A_FADnc_Dicarb_to_FADc',
@@ -371,21 +374,26 @@ Rule('A_FADc_binds_BCD',
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
      k_a_fadc_binds_bcd)
 
-Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None))
-Observable('SDHA_without_FAD', A(fad=None))
-Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc'))
-Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c'))
-Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2))
-Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
+obs_to_plot = [
+     Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
+     Observable('SDHA_without_FAD', A(fad=None)),
+     Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
+     Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
+     Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
+     Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
+]
+
+Observable('FADc', FAD(state='c'))
+Observable('FAD_tot', FAD())
 
 print(len(model.parameters))
 print(model.parameters)
 
 # simulation commands
 
-tspan = np.linspace(0, 10, 101)
+tspan = np.linspace(0, 30, 301)
 sim = ScipyOdeSimulator(model, tspan, verbose=True)
-out = sim.run()
+out = sim.run(initials={BCD(a=None): 0})
 
 # print()
 # print(len(model.species))
@@ -397,11 +405,25 @@ out = sim.run()
 # for i, rxn in enumerate(model.reactions):
 #     print(i, rxn)
 
-for obs in model.observables:
+for obs in obs_to_plot:
     plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
 plt.xlabel('time')
 plt.ylabel('amount')
 plt.legend(loc='best')
-
 plt.tight_layout()
+
+# Plot % flavinylation
+plt.figure('flavinylation')
+plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+plt.ylim(top=100)
+plt.xlabel('time')
+plt.ylabel('flavinylation, %')
+plt.tight_layout()
+
+# Change AF2 concentration to zero and run again
+out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
+plt.figure('flavinylation')
+plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2, label='- AF2')
+plt.legend(loc=0)
+
 plt.show()
