@@ -31,8 +31,8 @@ Initial(BCD(a=None), BCD_init)
 
 # Free A binding rules
 
-Parameter('kf_a_binds_fadnc', 10)  # *
-Parameter('kr_a_binds_fadnc', 1)
+Parameter('kf_a_binds_fadnc', 1)  # *
+Parameter('kr_a_binds_fadnc', 1000)
 Parameter('kf_a_binds_dicarb', 1)
 Parameter('kr_a_binds_dicarb', 1)
 Parameter('kf_a_binds_af2', 10)  # *
@@ -87,7 +87,7 @@ Rule('A_FADnc_binds_AF4',
 # A-Dicarb rules
 
 Parameter('kf_a_dicarb_binds_fadnc', 1)
-Parameter('kr_a_dicarb_binds_fadnc', 1)
+Parameter('kr_a_dicarb_binds_fadnc', 1000)
 Parameter('kf_a_dicarb_binds_af2', 1)
 Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
@@ -110,8 +110,8 @@ Rule('A_Dicarb_binds_AF4',
 
 # A-AF2 binding rules
 
-Parameter('kf_a_af2_binds_fadnc', 10)  # *
-Parameter('kr_a_af2_binds_fadnc', 1)
+Parameter('kf_a_af2_binds_fadnc', 1)  # *
+Parameter('kr_a_af2_binds_fadnc', 1000)
 Parameter('kf_a_af2_binds_dicarb', 1)
 Parameter('kr_a_af2_binds_dicarb', 1)
 Parameter('kf_a_af2_binds_af4', 1)
@@ -135,7 +135,7 @@ Rule('A_AF2_binds_AF4',
 # A-AF4 binding rules
 
 Parameter('kf_a_af4_binds_fadnc', 1)
-Parameter('kr_a_af4_binds_fadnc', 1)
+Parameter('kr_a_af4_binds_fadnc', 1000)
 Parameter('kf_a_af4_binds_dicarb', 1)
 Parameter('kr_a_af4_binds_dicarb', 1)
 Parameter('kf_a_af4_binds_af2', 1)
@@ -374,56 +374,99 @@ Rule('A_FADc_binds_BCD',
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
      k_a_fadc_binds_bcd)
 
-obs_to_plot = [
-     Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
-     Observable('SDHA_without_FAD', A(fad=None)),
-     Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
-     Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
-     Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
-     Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
-]
+if __name__ == "__main__" :
 
-Observable('FADc', FAD(state='c'))
-Observable('FAD_tot', FAD())
+     # Observables for various complexes within the pathway
+     obs_to_plot = [
+          Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
+          Observable('SDHA_without_FAD', A(fad=None)),
+          Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
+          Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
+          Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
+          Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
+     ]
 
-print(len(model.parameters))
-print(model.parameters)
+     # Observables for creating plots like in Maklashina et al. (2022)
+     Observable('FADc', FAD(state='c'))
+     Observable('FAD_tot', FAD())
 
-# simulation commands
+     # simulation commands
 
-tspan = np.linspace(0, 30, 301)
-sim = ScipyOdeSimulator(model, tspan, verbose=True)
-out = sim.run(initials={BCD(a=None): 0})
+     tspan = np.linspace(0, 30, 301)
+     sim = ScipyOdeSimulator(model, tspan, verbose=True)
+     out = sim.run(initials={BCD(a=None): 0})
 
-# print()
-# print(len(model.species))
-# quit()
+     # Plot various complexes within the pathway
+     for obs in obs_to_plot:
+         plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
+     plt.xlabel('time')
+     plt.ylabel('amount')
+     plt.legend(loc='best')
+     plt.tight_layout()
 
-# for i, sp in enumerate(model.species):
-#     print(i, sp)
-# print()
-# for i, rxn in enumerate(model.reactions):
-#     print(i, rxn)
+     # Plot % flavinylation
+     plt.figure('flavinylation')
+     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+     plt.ylim(top=100)
+     plt.xlabel('time')
+     plt.ylabel('flavinylation, %')
+     plt.tight_layout()
 
-for obs in obs_to_plot:
-    plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
-plt.xlabel('time')
-plt.ylabel('amount')
-plt.legend(loc='best')
-plt.tight_layout()
+     # Change AF2 concentration to zero and run again
+     out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
+     plt.figure('flavinylation')
+     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2, label='- AF2')
+     plt.legend(loc=0)
 
-# Plot % flavinylation
-plt.figure('flavinylation')
-plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
-plt.ylim(top=100)
-plt.xlabel('time')
-plt.ylabel('flavinylation, %')
-plt.tight_layout()
+     # Run Simulations with different initial amounts of Dicarb.
+     plt.figure('dicarb')
+     # Todo: loop over different initial amounts of dicarb and run simulations with and without AF2
+     tspan = np.linspace(0, 30, 301)
+     flav1 = []
+     flav2 = []
+     dicarb = np.append(np.arange(0,10,1),np.arange(10,100,10))
+     for d in dicarb :
+          out1 = sim.run( tspan = tspan, initials={BCD(a=None): 0, Dicarb(a=None): d})
+          #plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+          flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
+          out2 = sim.run( tspan = tspan, initials={BCD(a=None): 0, Dicarb(a=None): d, AF2(a=None): 0})
+          flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
+     plt.plot(dicarb, flav1, "-o", color='b', lw=2, label='+ AF2')
+     plt.plot(dicarb, flav2, "-o", color='k', lw=2, label='- AF2')
+     plt.xlabel('dicarboxylate, conc')
+     plt.ylabel('flavinylation, %')
+     plt.legend(loc=0)
+     plt.tight_layout()
 
-# Change AF2 concentration to zero and run again
-out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
-plt.figure('flavinylation')
-plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2, label='- AF2')
-plt.legend(loc=0)
 
-plt.show()
+     # Run Simulations with different initial amounts of FAD.
+     plt.figure('FAD')
+     # Todo: loop over different initial amounts of dicarb and run simulations with and without AF2
+     tspan = np.linspace(0, 30, 301)
+     flav1 = []
+     flav2 = []
+     fadc = []
+     fadtot = []
+     fad = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
+     for f in fad:
+          out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f})
+          # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+          flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
+          out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
+          flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
+          fadc.append(out2.observables['FADc'][-1])
+          fadtot.append(out2.observables['FAD_tot'][-1])
+     plt.plot(fad, flav1, "-o", color='b', lw=2, label='+ AF2')
+     plt.plot(fad, flav2, "-o", color='k', lw=2, label='- AF2')
+     plt.xlabel('FAD, conc')
+     plt.ylabel('flavinylation, %')
+     plt.legend(loc=0)
+     plt.tight_layout()
+
+     plt.figure()
+     plt.plot(fad, fadc, label = "fadc")
+     plt.plot(fad, fadtot, label = "fadtot")
+     plt.legend(loc=0)
+
+
+     plt.show()
