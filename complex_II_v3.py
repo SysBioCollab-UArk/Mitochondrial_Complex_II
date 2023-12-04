@@ -40,11 +40,13 @@ Parameter('kr_a_binds_af2', 1)
 Parameter('kf_a_binds_af4', 1)
 Parameter('kr_a_binds_af4', 1)
 
+# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_binds_FADnc',
      A(af2=None, af4=None, fad=None, dicarb=None) + FAD(a=None, state='nc') |
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc'),
      kf_a_binds_fadnc, kr_a_binds_fadnc)
 
+# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_binds_Dicarb',
      A(af2=None, af4=None, fad=None, dicarb=None) + Dicarb(a=None) |
      A(af2=None, af4=None, fad=None, dicarb=1) % Dicarb(a=1),
@@ -69,6 +71,7 @@ Parameter('kr_a_fadnc_binds_af4', 10)  # *
 Parameter('kf_a_fadnc_binds_af2', 10)  # *
 Parameter('kr_a_fadnc_binds_af2', 1)
 
+# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_FADnc_binds_Dicarb',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + Dicarb(a=None) |
      A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2),
@@ -93,6 +96,7 @@ Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
 Parameter('kr_a_dicarb_binds_af4', 1)
 
+# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_Dicarb_binds_FADnc',
      A(af2=None, af4=None, fad=None, dicarb=1) % Dicarb(a=1) + FAD(a=None, state='nc') |
      A(af2=None, af4=None, fad=2, dicarb=1) % Dicarb(a=1) % FAD(a=2, state='nc'),
@@ -264,13 +268,27 @@ Rule('A_AF2_AF4_binds_Dicarb',
 
 # TODO: This is the rate constant to change to model flavinylation in the absence of AF2
 #  (SdhE in Maklashina et al. 2022)
-Parameter('k_a_fadnc_dicarb_to_fadc', 5)
+#Parameter('k_a_fadnc_dicarb_to_fadc', 5)
 
+# NOTE: Dicarb dissociates from the complex upon FAD state change (thin black arrow on schematic)
+# Rule('A_FADnc_Dicarb_to_FADc',
+#      A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2) >>
+#      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + Dicarb(a=None),
+#      k_a_fadnc_dicarb_to_fadc)
+
+Parameter('kcat_a_fadnc_dicarb_to_fadc', 1E6)
+Parameter('Km_a_fadnc_dicarb_to_fadc', 10)
+Parameter('n_Hill', 5)
+Observable("Obs_A_FADnc_Dicarb", A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2))
+Expression("rate_A_FADnc_Dicarb_to_FADc",
+           kcat_a_fadnc_dicarb_to_fadc * Obs_A_FADnc_Dicarb ** (n_Hill-1) /
+           (Km_a_fadnc_dicarb_to_fadc ** n_Hill + Obs_A_FADnc_Dicarb ** n_Hill))
 # NOTE: Dicarb dissociates from the complex upon FAD state change (thin black arrow on schematic)
 Rule('A_FADnc_Dicarb_to_FADc',
      A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2) >>
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + Dicarb(a=None),
-     k_a_fadnc_dicarb_to_fadc)
+     rate_A_FADnc_Dicarb_to_FADc)
+
 
 # A-FADnc-Dicarb-AF2 state change
 
@@ -453,6 +471,13 @@ if __name__ == "__main__" :
           # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
           flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
           out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
+          ####
+          plt.figure("rate_exp")
+          #plt.plot(tspan, out2.expressions["rate_A_FADnc_Dicarb_to_FADc"] * out2.observables["Obs_A_FADnc_Dicarb"], lw = 2, label = "fad = %g" % f)
+          plt.plot(tspan,out2.observables["Obs_A_FADnc_Dicarb"], lw = 2, label = "fad = %g" % f)
+          plt.legend(loc = 0)
+          plt.figure('FAD')
+          ####
           flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
           fadc.append(out2.observables['FADc'][-1])
           fadtot.append(out2.observables['FAD_tot'][-1])
@@ -460,6 +485,7 @@ if __name__ == "__main__" :
      plt.plot(fad, flav2, "-o", color='k', lw=2, label='- AF2')
      plt.xlabel('FAD, conc')
      plt.ylabel('flavinylation, %')
+     plt.ylim(bottom = -5, top = 105)
      plt.legend(loc=0)
      plt.tight_layout()
 
@@ -467,6 +493,7 @@ if __name__ == "__main__" :
      plt.plot(fad, fadc, label = "fadc")
      plt.plot(fad, fadtot, label = "fadtot")
      plt.legend(loc=0)
+
 
 
      plt.show()
