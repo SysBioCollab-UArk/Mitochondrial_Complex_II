@@ -31,9 +31,9 @@ Initial(BCD(a=None), BCD_init)
 
 # Free A binding rules
 
-Parameter('kf_a_binds_fadnc', 1)  # *
-Parameter('kr_a_binds_fadnc', 1000)
-Parameter('kf_a_binds_dicarb', 1)
+Parameter('kf_a_binds_fadnc', 1000)  #1 *
+Parameter('kr_a_binds_fadnc', 1) #1000
+Parameter('kf_a_binds_dicarb', 1000) #1
 Parameter('kr_a_binds_dicarb', 1)
 Parameter('kf_a_binds_af2', 10)  # *
 Parameter('kr_a_binds_af2', 1)
@@ -64,7 +64,7 @@ Rule('A_binds_AF4',
 
 # A-FAD(nc) binding rules
 
-Parameter('kf_a_fadnc_binds_dicarb', 1)
+Parameter('kf_a_fadnc_binds_dicarb', 1000) #1
 Parameter('kr_a_fadnc_binds_dicarb', 1)
 Parameter('kf_a_fadnc_binds_af4', 1)
 Parameter('kr_a_fadnc_binds_af4', 10)  # *
@@ -89,8 +89,8 @@ Rule('A_FADnc_binds_AF4',
 
 # A-Dicarb rules
 
-Parameter('kf_a_dicarb_binds_fadnc', 1)
-Parameter('kr_a_dicarb_binds_fadnc', 1000)
+Parameter('kf_a_dicarb_binds_fadnc', 1000) #1
+Parameter('kr_a_dicarb_binds_fadnc', 1) #1000
 Parameter('kf_a_dicarb_binds_af2', 1)
 Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
@@ -277,8 +277,8 @@ Rule('A_AF2_AF4_binds_Dicarb',
 #      k_a_fadnc_dicarb_to_fadc)
 
 Parameter('kcat_a_fadnc_dicarb_to_fadc', 1E6)
-Parameter('Km_a_fadnc_dicarb_to_fadc', 10)
-Parameter('n_Hill', 5)
+Parameter('Km_a_fadnc_dicarb_to_fadc', 60)
+Parameter('n_Hill', 4)
 Observable("Obs_A_FADnc_Dicarb", A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2))
 Expression("rate_A_FADnc_Dicarb_to_FADc",
            kcat_a_fadnc_dicarb_to_fadc * Obs_A_FADnc_Dicarb ** (n_Hill-1) /
