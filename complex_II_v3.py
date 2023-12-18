@@ -422,23 +422,25 @@ if __name__ == "__main__" :
      plt.legend(loc='best')
      plt.tight_layout()
 
-     # Plot % flavinylation
+     # Plot % flavinylation TODO: figure 3A
      plt.figure('flavinylation')
-     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+     idxs = [i for i in range(0, 301, 30)]
+     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2)
+     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='b', lw=2, label='+ AF2')
+     # Change AF2 concentration to zero and run again
+     out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
+     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2)
+     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='k', lw=2, label='- AF2')
      plt.ylim(top=100)
      plt.xlabel('time')
      plt.ylabel('flavinylation, %')
+     plt.legend(loc=0)
      plt.tight_layout()
 
-     # Change AF2 concentration to zero and run again
-     out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
-     plt.figure('flavinylation')
-     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2, label='- AF2')
-     plt.legend(loc=0)
 
-     # Run Simulations with different initial amounts of Dicarb.
+     # Run Simulations with different initial amounts of Dicarb.TODO: Figure 3B
      plt.figure('dicarb')
-     # Todo: loop over different initial amounts of dicarb and run simulations with and without AF2
+     #loop over different initial amounts of dicarb and run simulations with and without AF2
      tspan = np.linspace(0, 30, 301)
      flav1 = []
      flav2 = []
@@ -457,9 +459,9 @@ if __name__ == "__main__" :
      plt.tight_layout()
 
 
-     # Run Simulations with different initial amounts of FAD.
+     # Run Simulations with different initial amounts of FAD. TODO: Figure 3C
      plt.figure('FAD')
-     # Todo: loop over different initial amounts of dicarb and run simulations with and without AF2
+     #loop over different initial amounts of dicarb and run simulations with and without AF2
      tspan = np.linspace(0, 30, 301)
      flav1 = []
      flav2 = []
@@ -471,13 +473,6 @@ if __name__ == "__main__" :
           # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
           flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
           out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
-          ####
-          plt.figure("rate_exp")
-          #plt.plot(tspan, out2.expressions["rate_A_FADnc_Dicarb_to_FADc"] * out2.observables["Obs_A_FADnc_Dicarb"], lw = 2, label = "fad = %g" % f)
-          plt.plot(tspan,out2.observables["Obs_A_FADnc_Dicarb"], lw = 2, label = "fad = %g" % f)
-          plt.legend(loc = 0)
-          plt.figure('FAD')
-          ####
           flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
           fadc.append(out2.observables['FADc'][-1])
           fadtot.append(out2.observables['FAD_tot'][-1])
@@ -489,11 +484,7 @@ if __name__ == "__main__" :
      plt.legend(loc=0)
      plt.tight_layout()
 
-     plt.figure()
-     plt.plot(fad, fadc, label = "fadc")
-     plt.plot(fad, fadtot, label = "fadtot")
-     plt.legend(loc=0)
-
-
+     #TODO: Create an expression for %flavinylation to use with pydream
+     #TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
 
      plt.show()
