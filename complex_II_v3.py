@@ -392,6 +392,11 @@ Rule('A_FADc_binds_BCD',
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
      k_a_fadc_binds_bcd)
 
+# Observables for creating plots like in Maklashina et al. (2022)
+Observable('FADc', FAD(state='c'))
+Observable('FAD_tot', FAD())
+Expression("pct_flavinylation", FADc / FAD_tot * 100)
+
 if __name__ == "__main__" :
 
      # Observables for various complexes within the pathway
@@ -403,12 +408,6 @@ if __name__ == "__main__" :
           Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
           Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
      ]
-
-     # Observables for creating plots like in Maklashina et al. (2022)
-     Observable('FADc', FAD(state='c'))
-     Observable('FAD_tot', FAD())
-     Expression("pct_flavinylation", FADc / FAD_tot * 100)
-
 
      # simulation commands
 
