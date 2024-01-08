@@ -407,6 +407,8 @@ if __name__ == "__main__" :
      # Observables for creating plots like in Maklashina et al. (2022)
      Observable('FADc', FAD(state='c'))
      Observable('FAD_tot', FAD())
+     Expression("pct_flavinylation", FADc / FAD_tot * 100)
+
 
      # simulation commands
 
@@ -426,6 +428,7 @@ if __name__ == "__main__" :
      plt.figure('flavinylation')
      idxs = [i for i in range(0, 301, 30)]
      plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2)
+     #plt.plot(tspan, out.expressions["pct_flavinylation"], color='r')
      plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='b', lw=2, label='+ AF2')
      # Change AF2 concentration to zero and run again
      out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
@@ -488,3 +491,4 @@ if __name__ == "__main__" :
      #TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
 
      plt.show()
+
