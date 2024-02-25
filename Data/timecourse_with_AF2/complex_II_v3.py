@@ -15,12 +15,18 @@ Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
 Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 
+#PYDREAM_IT no-sample A_init
 Parameter('A_init', 100)
+#PYDREAM_IT no-sample FAD_init
 Parameter('FAD_init', 100)
+#PYDREAM_IT no-sample Dicarb_init
 Parameter('Dicarb_init', 100)
+#PYDREAM_IT no-sample AF2_init
 Parameter('AF2_init', 100)
+#PYDREAM_IT no-sample AF4_init
 Parameter('AF4_init', 100)
-Parameter('BCD_init', 100)
+#PYDREAM_IT no-sample BCD_init
+Parameter('BCD_init', 0)
 
 Initial(A(af2=None, af4=None, fad=None, dicarb=None), A_init)
 Initial(FAD(a=None, state='nc'), FAD_init)
@@ -35,7 +41,9 @@ Parameter('kf_a_binds_fadnc', 1000)  #1 *
 Parameter('kr_a_binds_fadnc', 1) #1000
 Parameter('kf_a_binds_dicarb', 1000) #1
 Parameter('kr_a_binds_dicarb', 1)
+
 Parameter('kf_a_binds_af2', 10)  # *
+
 Parameter('kr_a_binds_af2', 1)
 Parameter('kf_a_binds_af4', 1)
 Parameter('kr_a_binds_af4', 1)
@@ -68,7 +76,9 @@ Parameter('kf_a_fadnc_binds_dicarb', 1000) #1
 Parameter('kr_a_fadnc_binds_dicarb', 1)
 Parameter('kf_a_fadnc_binds_af4', 1)
 Parameter('kr_a_fadnc_binds_af4', 10)  # *
+
 Parameter('kf_a_fadnc_binds_af2', 10)  # *
+
 Parameter('kr_a_fadnc_binds_af2', 1)
 
 # TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
@@ -91,7 +101,9 @@ Rule('A_FADnc_binds_AF4',
 
 Parameter('kf_a_dicarb_binds_fadnc', 1000) #1
 Parameter('kr_a_dicarb_binds_fadnc', 1) #1000
+
 Parameter('kf_a_dicarb_binds_af2', 1)
+
 Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
 Parameter('kr_a_dicarb_binds_af4', 1)
@@ -114,11 +126,17 @@ Rule('A_Dicarb_binds_AF4',
 
 # A-AF2 binding rules
 
+
 Parameter('kf_a_af2_binds_fadnc', 1)  # *
+
 Parameter('kr_a_af2_binds_fadnc', 1000)
+
 Parameter('kf_a_af2_binds_dicarb', 1)
+
 Parameter('kr_a_af2_binds_dicarb', 1)
+
 Parameter('kf_a_af2_binds_af4', 1)
+
 Parameter('kr_a_af2_binds_af4', 1)
 
 Rule('A_AF2_binds_FADnc',
@@ -142,7 +160,9 @@ Parameter('kf_a_af4_binds_fadnc', 1)
 Parameter('kr_a_af4_binds_fadnc', 1000)
 Parameter('kf_a_af4_binds_dicarb', 1)
 Parameter('kr_a_af4_binds_dicarb', 1)
+
 Parameter('kf_a_af4_binds_af2', 1)
+
 Parameter('kr_a_af4_binds_af2', 1)
 
 Rule('A_AF4_binds_FADnc',
@@ -162,7 +182,9 @@ Rule('A_AF4_binds_AF2',
 
 # A-FADnc-Dicarb binding rules
 
+
 Parameter('kf_a_fadnc_dicarb_binds_af2', 1)
+
 Parameter('kr_a_fadnc_dicarb_binds_af2', 1)
 Parameter('kf_a_fadnc_dicarb_binds_af4', 1)
 Parameter('kr_a_fadnc_dicarb_binds_af4', 1)
@@ -179,9 +201,13 @@ Rule('A_FADnc_Dicarb_binds_AF4',
 
 # A-FADnc-AF2 binding rules
 
+
 Parameter('kf_a_fadnc_af2_binds_dicarb', 1)
+
 Parameter('kr_a_fadnc_af2_binds_dicarb', 1)
+
 Parameter('kf_a_fadnc_af2_binds_af4', 1)
+
 Parameter('kr_a_fadnc_af2_binds_af4', 1)
 
 Rule('A_FADnc_AF2_binds_Dicarb',
@@ -198,7 +224,9 @@ Rule('A_FADnc_AF2_binds_AF4',
 
 Parameter('kf_a_fadnc_af4_binds_dicarb', 1)
 Parameter('kr_a_fadnc_af4_binds_dicarb', 1)
+
 Parameter('kf_a_fadnc_af4_binds_af2', 1)
+
 Parameter('kr_a_fadnc_af4_binds_af2', 1)
 
 Rule('A_FADnc_AF4_binds_Dicarb',
@@ -213,9 +241,13 @@ Rule('A_FADnc_AF4_binds_AF2',
 
 # A-Dicarb-AF2 binding rules
 
+
 Parameter('kf_a_dicarb_af2_binds_fadnc', 1)
+
 Parameter('kr_a_dicarb_af2_binds_fadnc', 1)
+
 Parameter('kf_a_dicarb_af2_binds_af4', 1)
+
 Parameter('kr_a_dicarb_af2_binds_af4', 1)
 
 Rule('A_Dicarb_AF2_binds_FADnc',
@@ -232,7 +264,9 @@ Rule('A_Dicarb_AF2_binds_AF4',
 
 Parameter('kf_a_dicarb_af4_binds_fadnc', 1)
 Parameter('kr_a_dicarb_af4_binds_fadnc', 1)
+
 Parameter('kf_a_dicarb_af4_binds_af2', 1)
+
 Parameter('kr_a_dicarb_af4_binds_af2', 1)
 
 Rule('A_Dicarb_AF4_binds_FADnc',
@@ -247,9 +281,13 @@ Rule('A_Dicarb_AF4_binds_AF2',
 
 # A-AF2-AF4 binding rules
 
+
 Parameter('kf_a_af2_af4_binds_fadnc', 1)
+
 Parameter('kr_a_af2_af4_binds_fadnc', 1)
+
 Parameter('kf_a_af2_af4_binds_dicarb', 1)
+
 Parameter('kr_a_af2_af4_binds_dicarb', 1)
 
 Rule('A_AF2_AF4_binds_FADnc',
@@ -278,6 +316,7 @@ Rule('A_AF2_AF4_binds_Dicarb',
 
 Parameter('kcat_a_fadnc_dicarb_to_fadc', 1E6)
 Parameter('Km_a_fadnc_dicarb_to_fadc', 60)
+#PYDREAM_IT prior n_Hill uniform 0.5
 Parameter('n_Hill', 4)
 Observable("Obs_A_FADnc_Dicarb", A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2))
 Expression("rate_A_FADnc_Dicarb_to_FADc",
@@ -292,6 +331,7 @@ Rule('A_FADnc_Dicarb_to_FADc',
 
 # A-FADnc-Dicarb-AF2 state change
 
+
 Parameter('k_a_fadnc_dicarb_af2_to_fadc', 1)
 
 Rule('A_FADnc_Dicarb_AF2_to_FADc',
@@ -301,6 +341,7 @@ Rule('A_FADnc_Dicarb_AF2_to_FADc',
 
 # A-FADc-Dicarb-AF2 binds AF4
 # NOTE: unbinding rule is defined later
+
 
 Parameter('kf_a_fadc_dicarb_af2_binds_af4', 1)
 
@@ -313,6 +354,7 @@ Rule('A_FADc_Dicarb_AF2_binds_AF4',
 
 # A-FADnc-Dicarb-AF4 binding + state change rule
 
+
 Parameter('k_a_fadnc_dicarb_af4_binds_af2', 1)
 
 Rule('A_FADnc_Dicarb_AF4_binds_AF2',
@@ -321,6 +363,7 @@ Rule('A_FADnc_Dicarb_AF4_binds_AF2',
      k_a_fadnc_dicarb_af4_binds_af2)
 
 # A-FADnc-AF2-AF4 binding + state change rule
+
 
 Parameter('k_a_fadnc_af2_af4_binds_dicarb', 1)
 
@@ -334,6 +377,7 @@ Rule('A_FADnc_AF2_AF4_binds_Dicarb',
 # A-FADc unbinding rules
 
 Parameter('k_a_fadc_dicarb_unbinds_dicarb', 1)
+
 Parameter('k_a_fadc_af2_unbinds_af2', 1)
 Parameter('k_a_fadc_af4_unbinds_af4', 1)
 
@@ -359,19 +403,20 @@ Rule('A_FADc_AF4_unbinds_AF4',
 
 # Formation of partially active CII (w/ non-covalent FAD)
 
-Parameter('k_a_fadnc_af2_binds_bcd', 1)
-Parameter('k_a_fadnc_af4_binds_bcd', 1)
-
+#PYDREAM_IT no-sample k_a_fadnc_binds_bcd
+Parameter('k_a_fadnc_binds_bcd', 1)
 Rule('A_FADnc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') % BCD(a=2),
-     k_a_fadnc_af2_binds_bcd)
+     k_a_fadnc_binds_bcd)
 
+# Parameter('k_a_fadnc_af2_binds_bcd', 1)
 # Rule('A_FADnc_AF2_binds_BCD',
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
 #      k_a_fadnc_af2_binds_bcd)
 
+# Parameter('k_a_fadnc_af4_binds_bcd', 1)
 # Rule('A_FADnc_AF4_binds_BCD',
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
@@ -379,14 +424,14 @@ Rule('A_FADnc_binds_BCD',
 
 # Formation of active CII
 
-Parameter('k_a_fadc_dicarb_binds_bcd', 1)
-Parameter('k_a_fadc_binds_bcd', 1)
-
+# Parameter('k_a_fadc_dicarb_binds_bcd', 1)
 # Rule('A_FADc_Dicarb_binds_BCD',
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
 #      k_a_fadc_dicarb_binds_bcd)
 
+#PYDREAM_IT no-sample k_a_fadc_binds_bcd
+Parameter('k_a_fadc_binds_bcd', 1)
 Rule('A_FADc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
@@ -422,7 +467,6 @@ if __name__ == "__main__" :
      plt.ylabel('amount')
      plt.legend(loc='best')
      plt.tight_layout()
-     plt.savefig('complexes.pdf', format='pdf')
 
      # Plot % flavinylation TODO: figure 3A
      plt.figure('flavinylation')
@@ -439,7 +483,7 @@ if __name__ == "__main__" :
      plt.ylabel('flavinylation, %')
      plt.legend(loc=0)
      plt.tight_layout()
-     plt.savefig('flavinylation.pdf', format='pdf')
+
 
      # Run Simulations with different initial amounts of Dicarb.TODO: Figure 3B
      plt.figure('dicarb')
@@ -460,7 +504,7 @@ if __name__ == "__main__" :
      plt.ylabel('flavinylation, %')
      plt.legend(loc=0)
      plt.tight_layout()
-     plt.savefig('dicarb.pdf', format='pdf')
+
 
      # Run Simulations with different initial amounts of FAD. TODO: Figure 3C
      plt.figure('FAD')
@@ -486,7 +530,6 @@ if __name__ == "__main__" :
      plt.ylim(bottom = -5, top = 105)
      plt.legend(loc=0)
      plt.tight_layout()
-     plt.savefig('FAD.pdf', format = "pdf")
 
      #TODO: Create an expression for %flavinylation to use with pydream
      #TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
