@@ -41,9 +41,7 @@ Parameter('kf_a_binds_fadnc', 1000)  #1 *
 Parameter('kr_a_binds_fadnc', 1) #1000
 Parameter('kf_a_binds_dicarb', 1000) #1
 Parameter('kr_a_binds_dicarb', 1)
-
 Parameter('kf_a_binds_af2', 10)  # *
-
 Parameter('kr_a_binds_af2', 1)
 Parameter('kf_a_binds_af4', 1)
 Parameter('kr_a_binds_af4', 1)
@@ -76,9 +74,7 @@ Parameter('kf_a_fadnc_binds_dicarb', 1000) #1
 Parameter('kr_a_fadnc_binds_dicarb', 1)
 Parameter('kf_a_fadnc_binds_af4', 1)
 Parameter('kr_a_fadnc_binds_af4', 10)  # *
-
 Parameter('kf_a_fadnc_binds_af2', 10)  # *
-
 Parameter('kr_a_fadnc_binds_af2', 1)
 
 # TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
@@ -101,9 +97,7 @@ Rule('A_FADnc_binds_AF4',
 
 Parameter('kf_a_dicarb_binds_fadnc', 1000) #1
 Parameter('kr_a_dicarb_binds_fadnc', 1) #1000
-
 Parameter('kf_a_dicarb_binds_af2', 1)
-
 Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
 Parameter('kr_a_dicarb_binds_af4', 1)
@@ -126,17 +120,11 @@ Rule('A_Dicarb_binds_AF4',
 
 # A-AF2 binding rules
 
-
 Parameter('kf_a_af2_binds_fadnc', 1)  # *
-
 Parameter('kr_a_af2_binds_fadnc', 1000)
-
 Parameter('kf_a_af2_binds_dicarb', 1)
-
 Parameter('kr_a_af2_binds_dicarb', 1)
-
 Parameter('kf_a_af2_binds_af4', 1)
-
 Parameter('kr_a_af2_binds_af4', 1)
 
 Rule('A_AF2_binds_FADnc',
@@ -160,9 +148,7 @@ Parameter('kf_a_af4_binds_fadnc', 1)
 Parameter('kr_a_af4_binds_fadnc', 1000)
 Parameter('kf_a_af4_binds_dicarb', 1)
 Parameter('kr_a_af4_binds_dicarb', 1)
-
 Parameter('kf_a_af4_binds_af2', 1)
-
 Parameter('kr_a_af4_binds_af2', 1)
 
 Rule('A_AF4_binds_FADnc',
@@ -182,9 +168,7 @@ Rule('A_AF4_binds_AF2',
 
 # A-FADnc-Dicarb binding rules
 
-
 Parameter('kf_a_fadnc_dicarb_binds_af2', 1)
-
 Parameter('kr_a_fadnc_dicarb_binds_af2', 1)
 Parameter('kf_a_fadnc_dicarb_binds_af4', 1)
 Parameter('kr_a_fadnc_dicarb_binds_af4', 1)
@@ -201,13 +185,9 @@ Rule('A_FADnc_Dicarb_binds_AF4',
 
 # A-FADnc-AF2 binding rules
 
-
 Parameter('kf_a_fadnc_af2_binds_dicarb', 1)
-
 Parameter('kr_a_fadnc_af2_binds_dicarb', 1)
-
 Parameter('kf_a_fadnc_af2_binds_af4', 1)
-
 Parameter('kr_a_fadnc_af2_binds_af4', 1)
 
 Rule('A_FADnc_AF2_binds_Dicarb',
@@ -224,9 +204,7 @@ Rule('A_FADnc_AF2_binds_AF4',
 
 Parameter('kf_a_fadnc_af4_binds_dicarb', 1)
 Parameter('kr_a_fadnc_af4_binds_dicarb', 1)
-
 Parameter('kf_a_fadnc_af4_binds_af2', 1)
-
 Parameter('kr_a_fadnc_af4_binds_af2', 1)
 
 Rule('A_FADnc_AF4_binds_Dicarb',
@@ -241,13 +219,9 @@ Rule('A_FADnc_AF4_binds_AF2',
 
 # A-Dicarb-AF2 binding rules
 
-
 Parameter('kf_a_dicarb_af2_binds_fadnc', 1)
-
 Parameter('kr_a_dicarb_af2_binds_fadnc', 1)
-
 Parameter('kf_a_dicarb_af2_binds_af4', 1)
-
 Parameter('kr_a_dicarb_af2_binds_af4', 1)
 
 Rule('A_Dicarb_AF2_binds_FADnc',
@@ -264,9 +238,7 @@ Rule('A_Dicarb_AF2_binds_AF4',
 
 Parameter('kf_a_dicarb_af4_binds_fadnc', 1)
 Parameter('kr_a_dicarb_af4_binds_fadnc', 1)
-
 Parameter('kf_a_dicarb_af4_binds_af2', 1)
-
 Parameter('kr_a_dicarb_af4_binds_af2', 1)
 
 Rule('A_Dicarb_AF4_binds_FADnc',
@@ -281,13 +253,9 @@ Rule('A_Dicarb_AF4_binds_AF2',
 
 # A-AF2-AF4 binding rules
 
-
 Parameter('kf_a_af2_af4_binds_fadnc', 1)
-
 Parameter('kr_a_af2_af4_binds_fadnc', 1)
-
 Parameter('kf_a_af2_af4_binds_dicarb', 1)
-
 Parameter('kr_a_af2_af4_binds_dicarb', 1)
 
 Rule('A_AF2_AF4_binds_FADnc',
@@ -331,7 +299,6 @@ Rule('A_FADnc_Dicarb_to_FADc',
 
 # A-FADnc-Dicarb-AF2 state change
 
-
 Parameter('k_a_fadnc_dicarb_af2_to_fadc', 1)
 
 Rule('A_FADnc_Dicarb_AF2_to_FADc',
@@ -341,7 +308,6 @@ Rule('A_FADnc_Dicarb_AF2_to_FADc',
 
 # A-FADc-Dicarb-AF2 binds AF4
 # NOTE: unbinding rule is defined later
-
 
 Parameter('kf_a_fadc_dicarb_af2_binds_af4', 1)
 
@@ -354,7 +320,6 @@ Rule('A_FADc_Dicarb_AF2_binds_AF4',
 
 # A-FADnc-Dicarb-AF4 binding + state change rule
 
-
 Parameter('k_a_fadnc_dicarb_af4_binds_af2', 1)
 
 Rule('A_FADnc_Dicarb_AF4_binds_AF2',
@@ -363,7 +328,6 @@ Rule('A_FADnc_Dicarb_AF4_binds_AF2',
      k_a_fadnc_dicarb_af4_binds_af2)
 
 # A-FADnc-AF2-AF4 binding + state change rule
-
 
 Parameter('k_a_fadnc_af2_af4_binds_dicarb', 1)
 
@@ -377,7 +341,6 @@ Rule('A_FADnc_AF2_AF4_binds_Dicarb',
 # A-FADc unbinding rules
 
 Parameter('k_a_fadc_dicarb_unbinds_dicarb', 1)
-
 Parameter('k_a_fadc_af2_unbinds_af2', 1)
 Parameter('k_a_fadc_af4_unbinds_af4', 1)
 

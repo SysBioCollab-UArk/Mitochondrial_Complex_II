@@ -358,20 +358,21 @@ Rule('A_FADc_AF4_unbinds_AF4',
 ##########
 
 # Formation of partially active CII (w/ non-covalent FAD)
-
-Parameter('k_a_fadnc_af2_binds_bcd', 1)
-Parameter('k_a_fadnc_af4_binds_bcd', 1)
+#TODO: We are assuming that BCD binds to the af2 site on SDHA. Need to confirm this
+Parameter('k_a_fadnc_binds_bcd', 1)
 
 Rule('A_FADnc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') % BCD(a=2),
-     k_a_fadnc_af2_binds_bcd)
+     k_a_fadnc_binds_bcd)
 
+#Parameter('k_a_fadnc_af2_binds_bcd', 1)
 # Rule('A_FADnc_AF2_binds_BCD',
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
 #      k_a_fadnc_af2_binds_bcd)
 
+#Parameter('k_a_fadnc_af4_binds_bcd', 1)
 # Rule('A_FADnc_AF4_binds_BCD',
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
@@ -379,14 +380,14 @@ Rule('A_FADnc_binds_BCD',
 
 # Formation of active CII
 
-Parameter('k_a_fadc_dicarb_binds_bcd', 1)
-Parameter('k_a_fadc_binds_bcd', 1)
+#Parameter('k_a_fadc_dicarb_binds_bcd', 1)
 
 # Rule('A_FADc_Dicarb_binds_BCD',
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
 #      k_a_fadc_dicarb_binds_bcd)
 
+Parameter('k_a_fadc_binds_bcd', 1)
 Rule('A_FADc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
