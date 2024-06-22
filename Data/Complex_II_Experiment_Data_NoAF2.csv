@@ -1,0 +1,8 @@
+observable,time,time_units,average,stderr,amount_units,expt_id
+pct_flavinylation,0,min,1,5,percent,-AF2
+pct_flavinylation,2,min,5,5,percent,-AF2
+pct_flavinylation,5,min,35,5,percent,-AF2
+pct_flavinylation,10,min,60,5,percent,-AF2
+pct_flavinylation,15,min,75,5,percent,-AF2
+pct_flavinylation,25,min,90,5,percent,-AF2
+pct_flavinylation,80,min,99,5,percent,-AF2
