@@ -1,11 +1,9 @@
 from complex_II_v3 import model
+from pysb.simulator import ScipyOdeSimulator
 from param_calibration import *
 
-
-def sim_protocol(solver,tspan,param_values):
-    output = solver.run(tspan=tspan, param_values=param_values).all
-    return output
-
+solver = ScipyOdeSimulator(model)
+sim_protocol = SimulationProtocol(solver)
 
 custom_priors = {'n_Hill': ('uniform', 0.5)}
 no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_init', 'kf_a_binds_af2',
