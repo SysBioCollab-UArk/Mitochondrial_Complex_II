@@ -15,6 +15,18 @@ Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
 Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 
+#TODO:
+# SDHA: 6 μM
+# FAD: 100 μM
+# SDHAF2: 10.4 μM
+# Fumarate: 10 mM
+# Experimental Protocol: SDHA + FAD + SDHAF2 are mixed together first. Fumurate is then added at time 0 to initiate the
+# reaction. We need a sequential injection simulation protocol with a pre equilibration step.
+
+#TODO: Next time, run some test simulations to determine how long it takes the system to reach equilibrium with A, FAD,
+# and AF2
+
+
 Parameter('A_init', 100)
 Parameter('FAD_init', 100)
 Parameter('Dicarb_init', 100)
