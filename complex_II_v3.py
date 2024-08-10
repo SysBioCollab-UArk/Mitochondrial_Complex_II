@@ -15,24 +15,25 @@ Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
 Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 
-#TODO:
-# SDHA: 6 μM
-# FAD: 100 μM
-# SDHAF2: 10.4 μM
-# Fumarate: 10 mM
-# Experimental Protocol: SDHA + FAD + SDHAF2 are mixed together first. Fumurate is then added at time 0 to initiate the
-# reaction. We need a sequential injection simulation protocol with a pre equilibration step.
+# TODO:
+#  SDHA: 6 μM
+#  FAD: 100 μM
+#  SDHAF2: 10.4 μM
+#  Fumarate: 10 mM
+#  Experimental Protocol: SDHA + FAD + SDHAF2 are mixed together first. Fumurate is then added at time 0 to initiate the
+#  reaction. We need a sequential injection simulation protocol with a pre equilibration step.
 
-#TODO: Next time, run some test simulations to determine how long it takes the system to reach equilibrium with A, FAD,
-# and AF2
+# TODO: Next time, run some test simulations to determine how long it takes the system to reach equilibrium with A, FAD,
+#  and AF2
+# TODO: Test simulations showed that 100 minutes should be long enough to reach equilibrium. Next time, create
+#  sequential injection protocols for both experiments and run pydream
 
-
-Parameter('A_init', 100)
-Parameter('FAD_init', 100)
-Parameter('Dicarb_init', 100)
-Parameter('AF2_init', 100)
-Parameter('AF4_init', 100)
-Parameter('BCD_init', 100)
+Parameter('A_init', 6)  # μM #100
+Parameter('FAD_init', 100)  # μM
+Parameter('Dicarb_init', 0)  # μM #100
+Parameter('AF2_init', 10.4)  # μM #100
+Parameter('AF4_init', 0)  # μM #100
+Parameter('BCD_init', 0)  # μM #100
 
 Initial(A(af2=None, af4=None, fad=None, dicarb=None), A_init)
 Initial(FAD(a=None, state='nc'), FAD_init)
