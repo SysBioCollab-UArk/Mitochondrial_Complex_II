@@ -44,9 +44,9 @@ Initial(BCD(a=None), BCD_init)
 
 # Free A binding rules
 
-Parameter('kf_a_binds_fadnc', 1000)  #1 *
-Parameter('kr_a_binds_fadnc', 1) #1000
-Parameter('kf_a_binds_dicarb', 1000) #1
+Parameter('kf_a_binds_fadnc', 1000)  # 1 *
+Parameter('kr_a_binds_fadnc', 1)  # 1000
+Parameter('kf_a_binds_dicarb', 1000)  # 1
 Parameter('kr_a_binds_dicarb', 1)
 Parameter('kf_a_binds_af2', 10)  # *
 Parameter('kr_a_binds_af2', 1)
@@ -77,7 +77,7 @@ Rule('A_binds_AF4',
 
 # A-FAD(nc) binding rules
 
-Parameter('kf_a_fadnc_binds_dicarb', 1000) #1
+Parameter('kf_a_fadnc_binds_dicarb', 1000)  # 1
 Parameter('kr_a_fadnc_binds_dicarb', 1)
 Parameter('kf_a_fadnc_binds_af4', 1)
 Parameter('kr_a_fadnc_binds_af4', 10)  # *
@@ -102,8 +102,8 @@ Rule('A_FADnc_binds_AF4',
 
 # A-Dicarb rules
 
-Parameter('kf_a_dicarb_binds_fadnc', 1000) #1
-Parameter('kr_a_dicarb_binds_fadnc', 1) #1000
+Parameter('kf_a_dicarb_binds_fadnc', 1000)  # 1
+Parameter('kr_a_dicarb_binds_fadnc', 1)  # 1000
 Parameter('kf_a_dicarb_binds_af2', 1)
 Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
@@ -281,7 +281,7 @@ Rule('A_AF2_AF4_binds_Dicarb',
 
 # TODO: This is the rate constant to change to model flavinylation in the absence of AF2
 #  (SdhE in Maklashina et al. 2022)
-#Parameter('k_a_fadnc_dicarb_to_fadc', 5)
+# Parameter('k_a_fadnc_dicarb_to_fadc', 5)
 
 # NOTE: Dicarb dissociates from the complex upon FAD state change (thin black arrow on schematic)
 # Rule('A_FADnc_Dicarb_to_FADc',
@@ -371,7 +371,7 @@ Rule('A_FADc_AF4_unbinds_AF4',
 ##########
 
 # Formation of partially active CII (w/ non-covalent FAD)
-#TODO: We are assuming that BCD binds to the af2 site on SDHA. Need to confirm this
+# TODO: We are assuming that BCD binds to the af2 site on SDHA. Need to confirm this
 Parameter('k_a_fadnc_binds_bcd', 1)
 
 Rule('A_FADnc_binds_BCD',
@@ -379,13 +379,13 @@ Rule('A_FADnc_binds_BCD',
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') % BCD(a=2),
      k_a_fadnc_binds_bcd)
 
-#Parameter('k_a_fadnc_af2_binds_bcd', 1)
+# Parameter('k_a_fadnc_af2_binds_bcd', 1)
 # Rule('A_FADnc_AF2_binds_BCD',
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=ANY, af4=None, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
 #      k_a_fadnc_af2_binds_bcd)
 
-#Parameter('k_a_fadnc_af4_binds_bcd', 1)
+# Parameter('k_a_fadnc_af4_binds_bcd', 1)
 # Rule('A_FADnc_AF4_binds_BCD',
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=None) % FAD(a=1, state='nc') + BCD(a=None) >>
 #      A(af2=None, af4=ANY, fad=1, dicarb=None, bcd=2) % FAD(a=1, state='nc') % BCD(a=2),
@@ -393,7 +393,7 @@ Rule('A_FADnc_binds_BCD',
 
 # Formation of active CII
 
-#Parameter('k_a_fadc_dicarb_binds_bcd', 1)
+# Parameter('k_a_fadc_dicarb_binds_bcd', 1)
 
 # Rule('A_FADc_Dicarb_binds_BCD',
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=None) % FAD(a=1, state='c') + BCD(a=None) >>
@@ -411,99 +411,99 @@ Observable('FADc', FAD(state='c'))
 Observable('FAD_tot', FAD())
 Expression("pct_flavinylation", FADc / FAD_tot * 100)
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
 
-     # Observables for various complexes within the pathway
-     obs_to_plot = [
-          Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
-          Observable('SDHA_without_FAD', A(fad=None)),
-          Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
-          Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
-          Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
-          Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
-     ]
+    # Observables for various complexes within the pathway
+    obs_to_plot = [
+         Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
+         Observable('SDHA_without_FAD', A(fad=None)),
+         Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
+         Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
+         Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
+         Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
+    ]
 
-     # simulation commands
+    # simulation commands
+    tspan = np.linspace(0, 30, 301)
+    sim = ScipyOdeSimulator(model, tspan, verbose=True)
+    out = sim.run(initials={BCD(a=None): 0})
 
-     tspan = np.linspace(0, 30, 301)
-     sim = ScipyOdeSimulator(model, tspan, verbose=True)
-     out = sim.run(initials={BCD(a=None): 0})
+    # Plot various complexes within the pathway
+    for obs in obs_to_plot:
+        plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
+    plt.xlabel('time')
+    plt.ylabel('amount')
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.savefig('complexes.pdf', format='pdf')
 
-     # Plot various complexes within the pathway
-     for obs in obs_to_plot:
-         plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
-     plt.xlabel('time')
-     plt.ylabel('amount')
-     plt.legend(loc='best')
-     plt.tight_layout()
-     plt.savefig('complexes.pdf', format='pdf')
+    # Plot % flavinylation TODO: figure 3A
+    plt.figure('flavinylation')
+    idxs = [i for i in range(0, 301, 30)]
+    plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2)
+    # plt.plot(tspan, out.expressions["pct_flavinylation"], color='r')
+    plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='b',
+             lw=2, label='+ AF2')
+    # Change AF2 concentration to zero and run again
+    out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
+    plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2)
+    plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='k',
+             lw=2, label='- AF2')
+    plt.ylim(top=100)
+    plt.xlabel('time')
+    plt.ylabel('flavinylation, %')
+    plt.legend(loc=0)
+    plt.tight_layout()
+    plt.savefig('flavinylation.pdf', format='pdf')
 
-     # Plot % flavinylation TODO: figure 3A
-     plt.figure('flavinylation')
-     idxs = [i for i in range(0, 301, 30)]
-     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2)
-     #plt.plot(tspan, out.expressions["pct_flavinylation"], color='r')
-     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='b', lw=2, label='+ AF2')
-     # Change AF2 concentration to zero and run again
-     out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
-     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2)
-     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='k', lw=2, label='- AF2')
-     plt.ylim(top=100)
-     plt.xlabel('time')
-     plt.ylabel('flavinylation, %')
-     plt.legend(loc=0)
-     plt.tight_layout()
-     plt.savefig('flavinylation.pdf', format='pdf')
+    # Run Simulations with different initial amounts of Dicarb.TODO: Figure 3B
+    plt.figure('dicarb')
+    # loop over different initial amounts of dicarb and run simulations with and without AF2
+    tspan = np.linspace(0, 30, 301)
+    flav1 = []
+    flav2 = []
+    dicarb = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
+    for d in dicarb:
+        out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, Dicarb(a=None): d})
+        # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+        flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
+        out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, Dicarb(a=None): d, AF2(a=None): 0})
+        flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
+    plt.plot(dicarb, flav1, "-o", color='b', lw=2, label='+ AF2')
+    plt.plot(dicarb, flav2, "-o", color='k', lw=2, label='- AF2')
+    plt.xlabel('dicarboxylate, conc')
+    plt.ylabel('flavinylation, %')
+    plt.legend(loc=0)
+    plt.tight_layout()
+    plt.savefig('dicarb.pdf', format='pdf')
 
-     # Run Simulations with different initial amounts of Dicarb.TODO: Figure 3B
-     plt.figure('dicarb')
-     #loop over different initial amounts of dicarb and run simulations with and without AF2
-     tspan = np.linspace(0, 30, 301)
-     flav1 = []
-     flav2 = []
-     dicarb = np.append(np.arange(0,10,1),np.arange(10,100,10))
-     for d in dicarb :
-          out1 = sim.run( tspan = tspan, initials={BCD(a=None): 0, Dicarb(a=None): d})
-          #plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
-          flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
-          out2 = sim.run( tspan = tspan, initials={BCD(a=None): 0, Dicarb(a=None): d, AF2(a=None): 0})
-          flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
-     plt.plot(dicarb, flav1, "-o", color='b', lw=2, label='+ AF2')
-     plt.plot(dicarb, flav2, "-o", color='k', lw=2, label='- AF2')
-     plt.xlabel('dicarboxylate, conc')
-     plt.ylabel('flavinylation, %')
-     plt.legend(loc=0)
-     plt.tight_layout()
-     plt.savefig('dicarb.pdf', format='pdf')
+    # Run Simulations with different initial amounts of FAD. TODO: Figure 3C
+    plt.figure('FAD')
+    # loop over different initial amounts of dicarb and run simulations with and without AF2
+    tspan = np.linspace(0, 30, 301)
+    flav1 = []
+    flav2 = []
+    fadc = []
+    fadtot = []
+    fad = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
+    for f in fad:
+        out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f})
+        # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
+        flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
+        out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
+        flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
+        fadc.append(out2.observables['FADc'][-1])
+        fadtot.append(out2.observables['FAD_tot'][-1])
+    plt.plot(fad, flav1, "-o", color='b', lw=2, label='+ AF2')
+    plt.plot(fad, flav2, "-o", color='k', lw=2, label='- AF2')
+    plt.xlabel('FAD, conc')
+    plt.ylabel('flavinylation, %')
+    plt.ylim(bottom=-5, top=105)
+    plt.legend(loc=0)
+    plt.tight_layout()
+    plt.savefig('FAD.pdf', format="pdf")
 
-     # Run Simulations with different initial amounts of FAD. TODO: Figure 3C
-     plt.figure('FAD')
-     #loop over different initial amounts of dicarb and run simulations with and without AF2
-     tspan = np.linspace(0, 30, 301)
-     flav1 = []
-     flav2 = []
-     fadc = []
-     fadtot = []
-     fad = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
-     for f in fad:
-          out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f})
-          # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
-          flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
-          out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
-          flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
-          fadc.append(out2.observables['FADc'][-1])
-          fadtot.append(out2.observables['FAD_tot'][-1])
-     plt.plot(fad, flav1, "-o", color='b', lw=2, label='+ AF2')
-     plt.plot(fad, flav2, "-o", color='k', lw=2, label='- AF2')
-     plt.xlabel('FAD, conc')
-     plt.ylabel('flavinylation, %')
-     plt.ylim(bottom = -5, top = 105)
-     plt.legend(loc=0)
-     plt.tight_layout()
-     plt.savefig('FAD.pdf', format = "pdf")
+    # TODO: Create an expression for %flavinylation to use with pydream
+    # TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
 
-     #TODO: Create an expression for %flavinylation to use with pydream
-     #TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
-
-     plt.show()
-
+    plt.show()
