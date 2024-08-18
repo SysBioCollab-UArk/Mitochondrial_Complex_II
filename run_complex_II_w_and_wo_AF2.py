@@ -7,12 +7,12 @@ from copy import deepcopy
 model.parameters['AF2_init'].value = 0
 model.parameters['BCD_init'].value = 0
 solver_noAF2 = ScipyOdeSimulator(model)
-sim_protocol_noAF2 = SequentialInjections(solver_noAF2, t_equil=100, perturb_day_amount={"Dicarb(a=None)": (0, 10000)})
+sim_protocol_noAF2 = SequentialInjections(solver_noAF2, t_equil=100, perturb_time_amount={"Dicarb(a=None)": (0, 10000)})
 
 model2 = deepcopy(model)
 model2.parameters['AF2_init'].value = 10.4  # μM
 solver_wAF2 = ScipyOdeSimulator(model2)
-sim_protocol_wAF2 = SequentialInjections(solver_wAF2, t_equil=100, perturb_day_amount={"Dicarb(a=None)": (0, 10000)})
+sim_protocol_wAF2 = SequentialInjections(solver_wAF2, t_equil=100, perturb_time_amount={"Dicarb(a=None)": (0, 10000)})
 
 custom_priors = {'n_Hill': ('uniform', 0.5)}
 no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_init', 'kf_a_binds_af4',
