@@ -23,11 +23,6 @@ Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 #  Experimental Protocol: SDHA + FAD + SDHAF2 are mixed together first. Fumurate is then added at time 0 to initiate the
 #  reaction. We need a sequential injection simulation protocol with a pre equilibration step.
 
-# TODO: Next time, run some test simulations to determine how long it takes the system to reach equilibrium with A, FAD,
-#  and AF2
-# TODO: Test simulations showed that 100 minutes should be long enough to reach equilibrium. Next time, create
-#  sequential injection protocols for both experiments and run pydream
-
 Parameter('A_init', 6)  # μM #100
 Parameter('FAD_init', 100)  # μM
 Parameter('Dicarb_init', 0)  # μM #100
@@ -408,8 +403,8 @@ Rule('A_FADc_binds_BCD',
 
 # Observables for creating plots like in Maklashina et al. (2022)
 Observable('FADc', FAD(state='c'))
-Observable('FAD_tot', FAD())
-Expression("pct_flavinylation", FADc / FAD_tot * 100)
+Observable('SDHA_tot', A())
+Expression("pct_flavinylation", FADc / SDHA_tot * 100)
 
 if __name__ == "__main__":
 
@@ -502,8 +497,5 @@ if __name__ == "__main__":
     plt.legend(loc=0)
     plt.tight_layout()
     plt.savefig('FAD.pdf', format="pdf")
-
-    # TODO: Create an expression for %flavinylation to use with pydream
-    # TODO: create three pydream_it input files for %flavinylation time course data for -AF2 condition
 
     plt.show()
