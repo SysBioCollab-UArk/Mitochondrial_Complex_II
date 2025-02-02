@@ -29,11 +29,7 @@ no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_i
              'kf_a_dicarb_af4_binds_fadnc', 'kr_a_dicarb_af4_binds_fadnc', 'k_a_fadc_af4_unbinds_af4',
              'k_a_fadnc_binds_bcd', 'k_a_fadc_binds_bcd']
 
-# for x in [p.name for p in model.parameters if p.name not in no_sample]:
-#     print(x)
-# quit()
-
-exp_data_file = 'Data/Complex_II_Experiment_Data_NoAF2.csv'
+exp_data_file = os.path.join('Data', 'Complex_II_Experiment_Data_NoAF2.csv')
 
 if __name__ == '__main__':
 
