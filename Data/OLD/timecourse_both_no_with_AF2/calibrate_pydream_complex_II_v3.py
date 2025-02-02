@@ -16,10 +16,10 @@ import re
 # Number of chains - should be at least 3.
 nchains = 5
 # Number of iterations
-niterations = 50000
+niterations = 10000
 
 # Initialize PySB solver object for running simulations. Simulation timespan should match experimental data.
-files = sorted(os.listdir('.'))
+files = sorted(os.listdir(''))
 exp_time_files = [f for f in files if re.search(r'exp_data_time_\d+', f)]
 experiments_time = [np.genfromtxt(file, delimiter=',', names=True) for file in exp_time_files]
 n_experiments = len(experiments_time)
@@ -37,8 +37,8 @@ for exp_time in experiments_time:
             if tspan[-1][i] in exp_time[name]:
                 tspan_mask[-1][name][i] = True
 solver = ScipyOdeSimulator(model)
-parameters_idxs = [6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 20, 21, 24, 25, 32, 33, 34, 35, 40, 41, 46, 47, 54, 55, 62, 63, 64, 69, 71]
-rates_mask = [False, False, False, False, False, False, True, True, True, True, False, False, True, True, True, True, True, True, False, False, True, True, False, False, True, True, False, False, False, False, False, False, True, True, True, True, False, False, False, False, True, True, False, False, False, False, True, True, False, False, False, False, False, False, True, True, False, False, False, False, False, False, True, True, True, False, False, False, False, True, False, True, False, False]
+parameters_idxs = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+rates_mask = [False, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, False]
 param_values = np.array([p.value for p in model.parameters])
 
 # USER must add commands to import/load any experimental data for use in the likelihood function!
@@ -62,7 +62,10 @@ def likelihood(position):
     logp_data = [0] * n_experiments
     for n in range(n_experiments):
         param_values[rates_mask] = 10 ** y
-        sim = solver.run(tspan=tspan[n], param_values=param_values).all
+        ##### TODO: added the line below to set AF2 = 0 in the 1st simulation
+        initials = {model.species[3]: 0} if n == 0 else None
+        #####
+        sim = solver.run(tspan=tspan[n], param_values=param_values, initials=initials).all
         for sp in like_data[n].keys():
             logp_data[n] += np.sum(like_data[n][sp].logpdf(sim[sp][tspan_mask[n][sp]]))
         if np.isnan(logp_data[n]):
@@ -75,30 +78,67 @@ sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0)) 
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_binds_fadnc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0))  # kf_a_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(10.0), scale=2.0))  # kf_a_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_binds_af2
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0))  # kf_a_fadnc_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(10.0), scale=2.0))  # kr_a_fadnc_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(10.0), scale=2.0))  # kf_a_fadnc_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_binds_af2
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0))  # kf_a_dicarb_binds_fadnc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_binds_af2
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af2_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0))  # kr_a_af2_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af2_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af2_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af2_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af2_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af4_binds_fadnc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1000.0), scale=2.0))  # kr_a_af4_binds_fadnc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af4_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af4_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_dicarb_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_dicarb_binds_af2
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_dicarb_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_dicarb_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_af2_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_af2_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_af2_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_af2_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_af4_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_af4_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadnc_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_fadnc_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_af2_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_af2_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_af2_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_af2_binds_af4
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_af4_binds_fadnc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_af4_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_dicarb_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_dicarb_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af2_af4_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af2_af4_binds_fadnc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_af2_af4_binds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kr_a_af2_af4_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1000000.0), scale=2.0))  # kcat_a_fadnc_dicarb_to_fadc
 sampled_params_list.append(SampledParam(norm, loc=np.log10(60.0), scale=2.0))  # Km_a_fadnc_dicarb_to_fadc
 sampled_params_list.append(SampledParam(uniform, loc=np.log10(4.0)-0.25, scale=0.5))  # n_Hill
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadnc_dicarb_af2_to_fadc
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # kf_a_fadc_dicarb_af2_binds_af4
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadnc_dicarb_af4_binds_af2
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadnc_af2_af4_binds_dicarb
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadc_dicarb_unbinds_dicarb
+sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadc_af2_unbinds_af2
 sampled_params_list.append(SampledParam(norm, loc=np.log10(1.0), scale=2.0))  # k_a_fadc_af4_unbinds_af4
 
 if __name__ == '__main__':

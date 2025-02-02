@@ -1,0 +1,15 @@
+observable,xval,x_units,yval,stderr,y_units,expt_id,alt_expt_id
+pct_flavinylation,0,mM,4.429530201,1.627430289,percent,fum_wAF2,+AF2
+pct_flavinylation,0.00625,mM,102.4832215,2.092410372,percent,fum_wAF2,+AF2
+pct_flavinylation,0.0125,mM,96.04026846,1.976165351,percent,fum_wAF2,+AF2
+pct_flavinylation,0.025,mM,101.2751678,1.976165351,percent,fum_wAF2,+AF2
+pct_flavinylation,0.05,mM,100.4697987,4.301065764,percent,fum_wAF2,+AF2
+pct_flavinylation,0.1,mM,98.25503356,5.696006011,percent,fum_wAF2,+AF2
+pct_flavinylation,0.25,mM,100.0671141,3.371105599,percent,fum_wAF2,+AF2
+pct_flavinylation,1,mM,101.4765101,3.836085681,percent,fum_wAF2,+AF2
+pct_flavinylation,0,mM,3.22147651,2.673635475,percent,fum_noAF2,-AF2
+pct_flavinylation,0.05,mM,17.31543624,2.208655392,percent,fum_noAF2,-AF2
+pct_flavinylation,0.1,mM,36.84563758,5.46351597,percent,fum_noAF2,-AF2
+pct_flavinylation,0.25,mM,66.6442953,6.393476135,percent,fum_noAF2,-AF2
+pct_flavinylation,0.5,mM,82.95302013,2.673635475,percent,fum_noAF2,-AF2
+pct_flavinylation,1,mM,88.99328859,3.836085681,percent,fum_noAF2,-AF2

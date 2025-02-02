@@ -19,7 +19,7 @@ nchains = 5
 niterations = 10000
 
 # Initialize PySB solver object for running simulations. Simulation timespan should match experimental data.
-files = sorted(os.listdir('.'))
+files = sorted(os.listdir(''))
 exp_time_files = [f for f in files if re.search(r'exp_data_time_\d+', f)]
 experiments_time = [np.genfromtxt(file, delimiter=',', names=True) for file in exp_time_files]
 n_experiments = len(experiments_time)
@@ -62,10 +62,7 @@ def likelihood(position):
     logp_data = [0] * n_experiments
     for n in range(n_experiments):
         param_values[rates_mask] = 10 ** y
-        ##### TODO: added the line below to set AF2 = 0 in the 1st simulation
-        initials = {model.species[3]: 0} if n == 0 else None
-        #####
-        sim = solver.run(tspan=tspan[n], param_values=param_values, initials=initials).all
+        sim = solver.run(tspan=tspan[n], param_values=param_values).all
         for sp in like_data[n].keys():
             logp_data[n] += np.sum(like_data[n][sp].logpdf(sim[sp][tspan_mask[n][sp]]))
         if np.isnan(logp_data[n]):

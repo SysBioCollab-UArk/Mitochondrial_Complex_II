@@ -3,36 +3,22 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-paths = ['timecourse_no_AF2', 'timecourse_with_AF2']
-labels = ['- AF2', '+ AF2']
+files = ["Flav_Time.csv", "Flav_Fumarate.csv", "Flav_FAD.csv"]
+for file in files:
+    print(file)
 
-for path, label in zip(paths, labels):
-    files = sorted([file for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))])
-    file_avg = None
-    file_se = None
-    file_time = None
-    for file in files:
-        if re.search(r'_avg_.*\.csv$', file):
-            file_avg = file
-        elif re.search(r'_se_.*\.csv$', file):
-            file_se = file
-        elif re.search(r'_time_.*\.csv$', file):
-            file_time = file
+    data = np.genfromtxt(file, dtype=None, delimiter=",", names=True, encoding="utf_8_sig")
+    print(data.dtype.names)
 
-    # file_avg = 'complex_II_v3_exp_data_avg_0.csv'
-    avg = np.genfromtxt(os.path.join(path, file_avg), dtype=None, delimiter=',', names=True, encoding="utf_8_sig")
-    #
-    # file_se = 'complex_II_v3_exp_data_se_0.csv'
-    se = np.genfromtxt(os.path.join(path, file_se), dtype=None, delimiter=',', names=True, encoding="utf_8_sig")
-    #
-    # file_time = 'complex_II_v3_exp_data_time_0.csv'
-    time = np.genfromtxt(os.path.join(path, file_time), dtype=None, delimiter=',', names=True, encoding="utf_8_sig")
-    #
-    plt.errorbar(time['pct_flavinylation'], avg['pct_flavinylation'], se['pct_flavinylation'], ls='None', marker='o', ms=8,
-                 capsize=10, label=label)
-    plt.xlabel('Time (min)')
-    plt.ylabel('% flavinylation')
-    plt.legend(loc=0)
-#
+    expt_ids = np.unique([d["expt_id"] for d in data])
+
+    plt.figure(constrained_layout=True)
+    for expt_id in expt_ids:
+        xvals = [d["xval"] for d in data if d["expt_id"] == expt_id]
+        yvals = [d["yval"] for d in data if d["expt_id"] == expt_id]
+        stderr = [d["stderr"] for d in data if d["expt_id"] == expt_id]
+        plt.errorbar(xvals, yvals, stderr, label=expt_id)
+
+    plt.legend(loc="best")
+
 plt.show()
-
