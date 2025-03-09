@@ -52,7 +52,7 @@ tpv_fad_noAF2=[{
     -100: ("FAD(a=None, state='nc')", conc),
     0: ("Dicarb(a=None)", 10000)
 } for conc in conc_fad['noAF2']]
-sim_protocol_fad_noAF2 = ParallelExperiments(solver, t_equil=100, time_perturb_value=tpv_fad_noAF2)
+sim_protocol_fad_noAF2 = ParallelExperiments(solver, t_equil=None, time_perturb_value=tpv_fad_noAF2)
 
 custom_priors = {'n_Hill': ('uniform', 0.5)}
 no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_init', 'kf_a_binds_af4',
