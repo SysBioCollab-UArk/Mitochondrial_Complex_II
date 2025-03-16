@@ -72,4 +72,6 @@ for cp in conc_perturb:
     new_labels = [labels[n] for n in range(0, n_sims*2, n_sims)] + list(labels[n_sims*2:])
     plt.legend(new_handles, new_labels, loc='best')
 
+plt.savefig('fig_PyDREAM_dose_response.png')
+
 plt.show()
