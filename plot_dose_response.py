@@ -14,6 +14,7 @@ expts_doses = [
      'fad_noAF2': [0, 5, 10, 20, 40, 60, 100],
      'xlabel': r'FAD ($\mu$M)'},
 ]
-label_dict = {'pct_flavinylation': 'Flavinylation', 'fum_wAF2': 'With AF2', 'fum_noAF2': 'W/o AF2'}
+label_dict = {'pct_flavinylation': 'Flavinylation', 'fum_wAF2': 'With AF2', 'fum_noAF2': 'W/o AF2',
+              'fad_wAF2': 'With AF2', 'fad_noAF2': 'W/o AF2'}
 
 plot_drc(basepath, directories, run_pydream_filename, expts_doses, label_dict)
