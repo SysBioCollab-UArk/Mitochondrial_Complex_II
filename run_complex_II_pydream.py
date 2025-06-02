@@ -54,6 +54,12 @@ tpv_fad_noAF2=[{
 } for conc in conc_fad['noAF2']]
 sim_protocol_fad_noAF2 = ParallelExperiments(solver, t_equil=None, time_perturb_value=tpv_fad_noAF2)
 
+###### Timecourse experiments ######
+
+sim_protocol_time_noAF2 = SequentialInjections(solver, t_equil=100, time_perturb_value={0: ("Dicarb(a=None)", 10000)})
+sim_protocol_time_wAF2 = SequentialInjections(solver, t_equil=None, time_perturb_value={-100: ("AF2(a=None)", 10.4),
+                                                                                        0: ("Dicarb(a=None)", 10000)})
+
 custom_priors = {'n_Hill': ('uniform', 0.5)}
 no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_init', 'kf_a_binds_af4',
              'kr_a_binds_af4', 'kf_a_fadnc_binds_af4', 'kr_a_fadnc_binds_af4', 'kf_a_dicarb_binds_af4',
@@ -68,14 +74,15 @@ no_sample = ['A_init', 'FAD_init', 'Dicarb_init', 'AF2_init', 'AF4_init', 'BCD_i
              'kr_a_af2_af4_binds_dicarb', 'kf_a_fadc_dicarb_af2_binds_af4', 'k_a_fadnc_dicarb_af4_binds_af2',
              'k_a_fadnc_af2_af4_binds_dicarb', 'k_a_fadc_af4_unbinds_af4', 'k_a_fadnc_binds_bcd', 'k_a_fadc_binds_bcd']
 
-exp_data_file = os.path.join('Data', 'Flav_Fumarate_FAD.csv')
+exp_data_file = os.path.join('Data', 'Flav_Fumarate_FAD_Time.csv')
 
 if __name__ == '__main__':
 
     calibrator = ParameterCalibration(model,
                                       exp_data_file,
                                       [sim_protocol_dicarb_wAF2, sim_protocol_dicarb_noAF2,
-                                       sim_protocol_fad_wAF2, sim_protocol_fad_noAF2],
+                                       sim_protocol_fad_wAF2, sim_protocol_fad_noAF2, sim_protocol_time_wAF2,
+                                       sim_protocol_time_noAF2],
                                       priors=custom_priors,
                                       no_sample=no_sample)
 
