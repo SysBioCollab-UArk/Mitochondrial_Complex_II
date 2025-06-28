@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from util import plot_drc_from_simdata, plot_tc_from_simdata
+from util import plot_from_simdata
 import numpy as np
 
 basepath = 'SAVED'
@@ -29,8 +29,8 @@ expt_doses = [
      'xlabel': r'FAD ($\mu$M)'}]
 ]
 
-plot_drc_from_simdata(basepath, directories, run_pydream_filename, expt_doses, label_dict)
-
 # plot timecourses
 tc_ids = ['time_wAF2', 'time_noAF2']
-plot_tc_from_simdata(basepath, directories, run_pydream_filename, tc_ids, label_dict)
+
+plot_from_simdata(basepath, directories, run_pydream_filename, expt_doses=expt_doses, tc_ids=tc_ids,
+                  label_dict=label_dict)
