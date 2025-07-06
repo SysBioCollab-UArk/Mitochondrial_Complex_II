@@ -66,15 +66,15 @@ def write_multicolor_word(fig, x, y, word, colors, fontsize=10, fontweight='norm
 if __name__ == '__main__':
 
     samples_ALL = []
-    cell_line_dirs = ['HT1080', 'U2OS']
-    bw_adjust = [3.0, 2.0]
+    cell_line_dirs = ['Flav_FAD', 'Flav_Fumarate', 'Flav_Fumarate_FAD']
+    bw_adjust = [3.0, 2.0, 2.0]
     for cell_line_dir, bw_adj in zip(cell_line_dirs, bw_adjust):
 
         # Set the 'path' variable to the directory where the SIM_DATA.csv, run_ferroptosis_pydream.py, and expt data file are
-        path = os.path.join('RESULTS', cell_line_dir)  # os.getcwd()
+        path = os.path.join('Data', cell_line_dir)  # os.getcwd()
 
         # import everything from run_ferroptosis_pydream.py file that's in the path
-        run_pydream_file = os.path.join(path, 'run_ferroptosis_pydream.py')
+        run_pydream_file = os.path.join(path, 'run_complex_II_pydream.py')
         import_string = run_pydream_file.replace('/', '.').replace('\\', '.').rstrip('.py')
         module = importlib.import_module(import_string)  # Import the module
 
@@ -89,12 +89,12 @@ if __name__ == '__main__':
 
         calibrator = ParameterCalibration(module.model,
                                           exp_data_file,
-                                          module.multi_exp_injection,
+                                          module.sim_protocols,
                                           priors=module.custom_priors,
                                           no_sample=module.no_sample)
 
         _, samples, _ = calibrator.create_figures(
-            logps_files, samples_files, obs_labels=module.obs_labels, show_plots=True,
+            logps_files, samples_files, obs_labels=None, show_plots=True,
             plot_ll_args={'cutoff': 2, 'save_plot': 'fig_PyDREAM_log_ps_%s' % cell_line_dir},
             plot_pd_args={'sharex': 'all', 'bw_adjust': bw_adj},
             which_plots=2)
@@ -119,12 +119,14 @@ if __name__ == '__main__':
     for n in range(n_params):
         print(n, end=' ')
         # share x-axis with first subplot
-        share_x_with = None if n == 0 else reference_ax
+        share_x_with = None #if n == 0 else reference_ax
         ax = fig.add_subplot(nrows, ncols, n + 1, sharex=share_x_with)
         if n == 0:
             reference_ax = ax
         axes.append(ax)
-        for i, (samples, color) in enumerate(zip(samples_ALL, [colors[n], 'k'])):
+        for i, (samples, color) in \
+                enumerate(zip(samples_ALL, [colors[(n+i) % n_params] for i in range(len(samples_ALL[:-1]))] + ['k'])):
+            #TODO: if i == 0: D.append([])
             sns.kdeplot(samples[:, n], color=color, fill=True, common_norm=False, ax=ax, bw_adjust=bw_adjust[i])
             x_vals = sorted(ax.collections[i].get_paths()[0].vertices[:, 0])  # get x-axis values from seaborn plot
             # get kernel density estimate (KDE) for calculating histogram distance and self distance
@@ -138,6 +140,7 @@ if __name__ == '__main__':
                 E_Dself.append(calc_self_distance(kde_ref, len(samples[:, n]), x_min_ref, x_max_ref, 1000))
             else:
                 # calculate histogram distance relative to the reference (use 2x the points, just to be safe)
+                #TODO: D[-1].append(...)
                 D.append(calc_hist_distance(kde, kde_ref, min(x_vals[0], x_min_ref), max(x_vals[-1], x_max_ref), 2000))
         empty_handle = Line2D([], [], linestyle="none")
         legend = ax.legend([empty_handle, empty_handle],
@@ -147,7 +150,7 @@ if __name__ == '__main__':
         ax.set_yticklabels([])
         ax.set_ylabel(None)
         ax.tick_params(axis='x', labelsize=labelsize)
-        ax.label_outer()
+        #ax.label_outer()
         ax.set_title(labels[n], fontsize=labelsize)
     fig.supxlabel(r'log$_{10}$ value', fontsize=fontsize)
     fig.supylabel('Density', fontsize=fontsize)
@@ -163,7 +166,7 @@ if __name__ == '__main__':
     # Plot histogram distances with self distances
     NCOLS = 2
     sorted_idxs = np.argsort(D)[::-1]  # sort from largest to smallest
-    sorted_labels = [labels[i] for i in sorted_idxs]
+    sorted_labels = [labels[i % n_params] for i in sorted_idxs]
     table_data = []
     for col in range(NCOLS):
         start = col * n_params // NCOLS
@@ -181,6 +184,8 @@ if __name__ == '__main__':
 
     # save overlaid histograms figure
     plt.savefig('fig_PyDREAM_hist_overlay_%s' % str.join('_', cell_line_dirs))
+
+    #TODO: Generalize the code below to create one bar plot for each pair of histograms being compared
 
     plt.figure(constrained_layout=True)
     plt.bar(np.arange(len(sorted_idxs)), [D[i] for i in sorted_idxs])
