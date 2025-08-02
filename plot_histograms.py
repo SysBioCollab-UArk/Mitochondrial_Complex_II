@@ -25,23 +25,26 @@ def calc_hist_distance(kde, kde_ref, x_min, x_max, num_x_pts):
     return D
 
 
+def get_word_width(fig, word, fontsize, fontweight):
+    # Font properties
+    fontprops = FontProperties(size=fontsize, weight=fontweight)
+    # Measure full word width (includes kerning)
+    tp_word = TextPath((0, 0), word, prop=fontprops)
+    word_width = tp_word.get_extents().width / 72 / fig.get_size_inches()[0]
+    return word_width
+
+
 def write_multicolor_word(fig, x, y, word, colors, fontsize=10, fontweight='normal', additional_text=None):
 
     if len(colors) != len(word):
         raise Exception("Length of 'colors' (%d) does not match length of 'word' (%d)" % (len(colors), len(word)))
 
-    # Font properties
-    fontprops = FontProperties(size=fontsize, weight=fontweight)
-
-    # Measure full word width (includes kerning)
-    tp_word = TextPath((0, 0), word, prop=fontprops)
-    word_width = tp_word.get_extents().width / 72 / fig.get_size_inches()[0]
+    word_width = get_word_width(fig, word, fontsize, fontweight)
 
     # Measure individual letter widths
     letter_widths = []
     for letter in word:
-        tp_letter = TextPath((0, 0), letter, prop=fontprops)
-        letter_widths.append(tp_letter.get_extents().width / 72 / fig.get_size_inches()[0])  # convert pts to figure coords
+        letter_widths.append(get_word_width(fig, letter, fontsize, fontweight))
 
     # Estimate average inter-letter spacing from kerning
     letter_spacing = 0 if len(word) <= 1 else (word_width - sum(letter_widths)) / (len(word) - 1)
@@ -57,21 +60,159 @@ def write_multicolor_word(fig, x, y, word, colors, fontsize=10, fontweight='norm
         fig.text(x, y, additional_text, ha='left', fontsize=fontsize, fontweight=fontweight)
     elif isinstance(additional_text, dict):
         text = additional_text.pop('text')
-        ha = additional_text.pop('ha', 'left')
         fs = additional_text.pop('fontsize', fontsize)
         fw = additional_text.pop('fontweight', fontweight)
-        fig.text(x, y, text, ha=ha, fontsize=fs, fontweight=fw, **additional_text)
+        fig.text(x, y, text, ha='left', fontsize=fs, fontweight=fw, **additional_text)
 
 
-def plot_histogram_overlays(dirpath, directories, run_pydream_filename, bw_adjust=None, show_plot=True):
+def plot_hist_overlays(two_samples, param_labels, hist_labels, E_Dself=None, **kwargs):
+
+    # error check
+    if not (len(two_samples) == len(hist_labels) == 2):
+        raise Exception("The number of sets of parameter samples and histogram labels must equal 2")
+
+    if not (two_samples[0].shape[1] == two_samples[1].shape[1] == len(param_labels)):
+        raise Exception("The number of parameter labels must equal the number of columns in 'two_samples'")
+
+    # process kwargs
+    fontsizes = kwargs.get('fontsizes', {})
+    labels_fs = fontsizes.get('labels', None)
+    ticks_fs = fontsizes.get('ticks', None)
+    legend_fs = fontsizes.get('legend', None)
+    title_fs = fontsizes.get('title', None)
+    bw_adjust = kwargs.get('bw_adjust', [1] * len(directories))  # default smoothing parameter
+    sharex = kwargs.get('sharex', False)
+
+    ### Plot histogram distances with self distances ###
+    n_params = len(param_labels)
+    ncols = get_fig_ncols(n_params)
+    nrows = math.ceil(n_params / ncols)
+    labelsize = 10 * max(1, (2 / 5 * np.ceil(nrows / 2)))
+    fontsize = 10 * max(1, (3 / 5 * np.ceil(nrows / 2)))
+    colors = sns.color_palette(n_colors=n_params)
+    fig_overlay = plt.figure(constrained_layout=True, figsize=(0.65 * ncols * 6.4, 0.6 * nrows * 4.8))
+    axes = []
+    reference_ax = None
+    D = []  # histogram distances
+    if E_Dself is None:
+        E_Dself = [[None] * n_params for _ in range(2)]
+    for n in range(n_params):
+        print(n, end=' ')
+        # share x-axis with first subplot
+        ax = fig_overlay.add_subplot(nrows, ncols, n + 1, sharex=reference_ax)
+        if n == 0 and sharex:
+            reference_ax = ax
+        axes.append(ax)
+        for i, (samples, color) in enumerate(zip(two_samples, ['k', colors[n % n_params]])):
+            # reference histograms are black, sample histograms are multicolor
+            sns.kdeplot(samples[:, n], color=color, fill=True, common_norm=False, ax=ax, bw_adjust=bw_adjust[i])
+            x_vals = sorted(ax.collections[i].get_paths()[0].vertices[:, 0])  # get x-axis vals from kdeplot
+            # get kernel density estimate (KDE) for calculating histogram distance and self distance
+            kde = stats.gaussian_kde(samples[:, n])
+            kde.set_bandwidth(kde.factor * bw_adjust[i])
+            if i == 0:  # reference histogram
+                # calculate self distance (expected value)
+                kde_ref = kde
+                x_min_ref = x_vals[0]
+                x_max_ref = x_vals[-1]
+                if E_Dself[0][n] is None:
+                    E_Dself[0][n] = calc_self_distance(kde_ref, len(samples[:, n]), x_min_ref, x_max_ref, 1000)
+            else:
+                # calculate histogram distance relative to the reference (use 2x the points, just to be safe)
+                D.append(calc_hist_distance(kde, kde_ref, min(x_vals[0], x_min_ref), max(x_vals[-1], x_max_ref),
+                                            2000))
+        empty_handle = Line2D([], [], linestyle="none")
+        legend = ax.legend([empty_handle, empty_handle],
+                           [r'$D$: %.3f' % D[-1],
+                            r'$\left\langle D^\mathrm{self} \right\rangle$: %.3f' % E_Dself[0][n]],
+                           fontsize=0.9 * labelsize if legend_fs is None else legend_fs,
+                           loc='best', handlelength=0, handletextpad=0, labelspacing=0.4)
+        legend.set_frame_on(False)
+        ax.set_yticklabels([])
+        ax.set_ylabel(None)
+        ax.tick_params(axis='x', labelsize=labelsize if ticks_fs is None else ticks_fs)
+        # ax.label_outer()
+        ax.set_title(param_labels[n], fontsize=labelsize if title_fs is None else title_fs)
+    print()
+    fig_overlay.supxlabel(r'log$_{10}$ value' + '\n\n', fontsize=fontsize if labels_fs is None else labels_fs)
+    fig_overlay.supylabel('Density', fontsize=fontsize if labels_fs is None else labels_fs)
+
+    # Create a common figure legend for the overlay figure
+    fontsize = fig_overlay.get_axes()[0].xaxis.label.get_fontsize()
+    fig_legend_fs = 1.1 * (fontsize if labels_fs is None else labels_fs)  # make legend text a bit bigger
+    space_height = 2 * fig_legend_fs / 72 / fig_overlay.get_size_inches()[0]
+    # reference histograms are black
+    additional_text = {'text': ": %s" % hist_labels[0], 'fontweight': 'normal'}
+    text_width = get_word_width(fig_overlay, 'Black', fig_legend_fs, 'bold')
+    text_width += get_word_width(fig_overlay, additional_text['text'], fig_legend_fs, additional_text['fontweight'])
+    write_multicolor_word(fig_overlay, 0.5 - text_width - 0.01, 0.45 * space_height, "Black",
+                          ['k'] * len("Black"), fontsize=fig_legend_fs, fontweight='bold',
+                          additional_text=additional_text)
+    # sample histograms are multicolor
+    additional_text = {'text': ": %s" % hist_labels[1], 'fontweight': 'normal'}
+    write_multicolor_word(fig_overlay, 0.5 + 0.01, 0.45 * space_height, "Multicolor",
+                          sns.color_palette(n_colors=len("Multicolor")), fontsize=fig_legend_fs, fontweight='bold',
+                          additional_text=additional_text)
+
+    ### Make barplot figure rank-ordered by histogram distance ###
+    # Make a table with parameter names rank-ordered by histogram distance
+    NCOLS = 2
+    sorted_idxs = np.argsort(D)[::-1]  # sort from largest to smallest
+    sorted_labels = [param_labels[i % n_params] for i in sorted_idxs]
+    table_data = []
+    for col in range(NCOLS):
+        start = col * n_params // NCOLS
+        end = (col + 1) * n_params // NCOLS
+        '''print('start: %d, end: %d, len(sorted_labels): %d' % (start, end, len(sorted_labels)))'''
+        for row in range(end - start):
+            '''print('row: %d, len(table_data): %d' % (row, len(table_data)))'''
+            if row == len(table_data):
+                table_data.append([])
+            if len(table_data[row]) < col:
+                table_data[row] += [""]
+            table_data[row] += ["%d. %s" % (start + row, sorted_labels[start + row])]
+    '''for row in table_data:
+        print(row)'''
+
+    # Create the barplot
+    fig_barplot = plt.figure(constrained_layout=True)
+    plt.bar(np.arange(len(sorted_idxs)), [D[i] for i in sorted_idxs])
+    for i, e in enumerate([E_Dself[0][j] for j in sorted_idxs]):
+        plt.plot([i - 0.4, i + 0.4], [e, e], color='r', lw=2)
+    plt.xlabel('Index')
+    plt.ylabel('Histogram Distance')
+
+    # Add table to the corner of the plot
+    table = plt.table(
+        cellText=table_data,
+        colLabels=None,
+        loc='upper right',
+        cellLoc='left'
+    )
+    table.set_fontsize(8)  # Set font size
+    table.scale(1, 0.8)  # Stretch horizontally and vertically
+    table.auto_set_column_width([i for i in range(NCOLS)])  # Adjust column widths automatically
+    # Remove all borders
+    for cell in table.get_celld().values():
+        cell.set_linewidth(0)
+
+    # return figures and E_Dself
+    return fig_overlay, fig_barplot, E_Dself
+
+
+def plot_hist_overlays_from_dirs(dirpath, directories, run_pydream_filename, show_plots=False,
+                                             save_plots=True, **kwargs):
+
+    if save_plots is not False:
+        outdir = '.' if save_plots is True else save_plots
 
     directories = np.array(directories)
 
-    if bw_adjust is None:
-        bw_adjust = [1] * len(directories)  # default smoothing parameter
+    # process kwargs
+    bw_adjust = kwargs.get('bw_adjust', [1] * len(directories))  # default smoothing parameter
 
     samples_ALL = []
-    for directory, bw_adj in zip(directories, bw_adjust):
+    for i, directory in enumerate(directories):
 
         # Set the 'path' variable to the directory where the SIM_DATA.csv, run_<...>_pydream.py, and expt data files are
         path = os.path.join(dirpath, directory)  # os.getcwd()
@@ -94,142 +235,66 @@ def plot_histogram_overlays(dirpath, directories, run_pydream_filename, bw_adjus
                                           exp_data_file,
                                           module.sim_protocols,
                                           priors=module.custom_priors,
-                                          no_sample=module.no_sample)
+                                          no_sample=module.no_sample,
+                                          param_expts_map=module.param_expts_map)
 
-        _, samples, _ = calibrator.create_figures(
-            logps_files, samples_files, obs_labels=None, show_plots=True,
-            plot_ll_args={'cutoff': 2, 'file_suffix': directory},
-            plot_pd_args={'sharex': 'all', 'bw_adjust': bw_adj},
-            which_plots=2)
+        _, (samples, groups, group_labels), _ = \
+            calibrator.create_figures(logps_files, samples_files, obs_labels=None, show_plots=True,
+                                      plot_ll_args={'cutoff': 2, 'file_suffix': directory},
+                                      plot_pd_args={'sharex': 'all', 'bw_adjust': bw_adjust[i]},
+                                      which_plots=2)
 
         samples_ALL.append(samples)
 
     # Create figures with parameter histograms overlaid
-    n_params = len(calibrator.parameter_idxs)
-    ncols = get_fig_ncols(n_params)
-    nrows = math.ceil(n_params / ncols)
-    labels = [calibrator.model.parameters[i].name for i in calibrator.parameter_idxs]
-    labelsize = 10 * max(1, (2 / 5 * np.ceil(nrows / 2)))
-    fontsize = 10 * max(1, (3 / 5 * np.ceil(nrows / 2)))
-    colors = sns.color_palette(n_colors=n_params)
-
-    E_Dself = [[] for _ in range(len(samples_ALL))]  # store self distances so don't need to recalculate
+    n_params_tot = len(calibrator.parameter_idxs)
+    # store E_Dself so don't need to recalculate
+    E_Dself = np.array([[None] * n_params_tot for _ in range(len(samples_ALL))])
+    samples_ALL_idxs = np.arange(len(samples_ALL))
 
     # Loop over all (ref, sample) pairs
-    samples_ALL_idxs = np.arange(len(samples_ALL))
     sample_pairs = set(tuple(sorted((a, b))) for a in samples_ALL_idxs for b in samples_ALL_idxs if a != b)
     for sample_pair in sample_pairs:
-        sample_pair = list(sample_pair)
+        sample_pair = np.array(sample_pair)
         print("Comparing histograms for '%s' and '%s'" % (directories[sample_pair[0]], directories[sample_pair[1]]))
-        fig = plt.figure(constrained_layout=True, figsize=(0.65 * ncols * 6.4, 0.5 * nrows * 4.8))
-        axes = []
-        reference_ax = None
-        D = []  # histogram distances
-        for n in range(n_params):
-            print(n, end=' ')
-            # share x-axis with first subplot
-            share_x_with = None  # if n == 0 else reference_ax
-            ax = fig.add_subplot(nrows, ncols, n + 1, sharex=share_x_with)
-            if n == 0:
-                reference_ax = ax
-            axes.append(ax)
-            for i, (samples, color) in enumerate(
-                    zip([samples_ALL[sp] for sp in sample_pair], ['k', colors[n % n_params]])):
 
-                sns.kdeplot(samples[:, n], color=color, fill=True, common_norm=False, ax=ax, bw_adjust=bw_adjust[i])
-                x_vals = sorted(ax.collections[i].get_paths()[0].vertices[:, 0])  # get x-axis values from seaborn plot
-                # get kernel density estimate (KDE) for calculating histogram distance and self distance
-                kde = stats.gaussian_kde(samples[:, n])
-                kde.set_bandwidth(kde.factor * bw_adjust[i])
-                if i == 0:  # reference histogram
-                    # calculate self distance (expected value)
-                    kde_ref = kde
-                    x_min_ref = x_vals[0]
-                    x_max_ref = x_vals[-1]
-                    if len(E_Dself[sample_pair[0]]) < n_params:
-                        E_Dself[sample_pair[0]].append(
-                            calc_self_distance(kde_ref, len(samples[:, n]), x_min_ref, x_max_ref, 1000))
-                else:
-                    # calculate histogram distance relative to the reference (use 2x the points, just to be safe)
-                    D.append(calc_hist_distance(kde, kde_ref, min(x_vals[0], x_min_ref), max(x_vals[-1], x_max_ref),
-                                                2000))
-            empty_handle = Line2D([], [], linestyle="none")
-            legend = ax.legend([empty_handle, empty_handle],
-                               ['D: %.3f' % D[-1], r'E[D$^\mathrm{self}$]: %.3f' % E_Dself[sample_pair[0]][-1]],
-                               fontsize=0.9 * labelsize, loc='best', handlelength=0, labelspacing=0.4)
-            legend.set_frame_on(False)
-            ax.set_yticklabels([])
-            ax.set_ylabel(None)
-            ax.tick_params(axis='x', labelsize=labelsize)
-            # ax.label_outer()
-            ax.set_title(labels[n], fontsize=labelsize)
-        fig.supxlabel(r'log$_{10}$ value', fontsize=fontsize)
-        fig.supylabel('Density', fontsize=fontsize)
+        # Loop over parameter groups
+        for g, (group, param_labels) in enumerate(zip(groups, group_labels)):
+            two_samples = [samples_ALL[idx][:, group] for idx in sample_pair]
+            hist_labels = [directories[idx] for idx in sample_pair]
+            E_Dself_g = E_Dself[sample_pair[:, None], np.array([group for _ in range(2)])]
+            # Create figures by calling general overlay plotting function
+            fig_ov, fig_bp, E_Dself_g = plot_hist_overlays(two_samples, param_labels, hist_labels, E_Dself_g, **kwargs)
+            E_Dself[sample_pair[:, None], np.array([group for _ in range(2)])] = E_Dself_g
 
-        # Create a common figure legend
-        additional_text = {'text': ": HT-1080", 'fontweight': 'normal'}
-        write_multicolor_word(fig, 0.82, 0.1, "Multicolor", sns.color_palette(n_colors=len("Multicolor")),
-                              fontsize=fontsize, fontweight='bold', additional_text=additional_text)
-        additional_text = {'text': ": U2-OS", 'fontweight': 'normal'}
-        write_multicolor_word(fig, 0.82, 0.078, "Black", ['k'] * len("Black"),
-                              fontsize=fontsize, fontweight='bold', additional_text=additional_text)
+            # save overlay figure
+            if save_plots is not False:
+                outfile = 'fig_PyDREAM_hist_overlay_%s' % str.join('_', directories[sample_pair])
+                if len(groups) > 1:
+                    outfile += '_group_%d' % g
+                fig_ov.savefig(os.path.join(outdir, outfile))
 
-        # Plot histogram distances with self distances
-        NCOLS = 2
-        sorted_idxs = np.argsort(D)[::-1]  # sort from largest to smallest
-        sorted_labels = [labels[i % n_params] for i in sorted_idxs]
-        table_data = []
-        for col in range(NCOLS):
-            start = col * n_params // NCOLS
-            end = (col + 1) * n_params // NCOLS
-            '''print('start: %d, end: %d, len(sorted_labels): %d' % (start, end, len(sorted_labels)))'''
-            for row in range(end - start):
-                '''print('row: %d, len(table_data): %d' % (row, len(table_data)))'''
-                if row == len(table_data):
-                    table_data.append([])
-                if len(table_data[row]) < col:
-                    table_data[row] += [""]
-                table_data[row] += ["%d. %s" % (start + row, sorted_labels[start + row])]
-        '''for row in table_data:
-            print(row)'''
+            # save barplot figure
+            if save_plots is not False:
+                outfile = 'fig_PyDREAM_hist_distances_%s' % str.join('_', directories[sample_pair])
+                if len(groups) > 1:
+                    outfile += '_group_%d' % g
+                fig_bp.savefig(os.path.join(outdir, outfile))
 
-        # save overlaid histograms figure
-        plt.savefig('fig_PyDREAM_hist_overlay_%s' % str.join('_', directories[sample_pair]))
-
-        # Make barplot figure rank-ordered by histogram distance
-        plt.figure(constrained_layout=True)
-        plt.bar(np.arange(len(sorted_idxs)), [D[i] for i in sorted_idxs])
-        for i, e in enumerate([E_Dself[sample_pair[0]][j] for j in sorted_idxs]):
-            plt.plot([i - 0.4, i + 0.4], [e, e], color='r', lw=2)
-        plt.xlabel('Index')
-        plt.ylabel('Histogram Distance')
-
-        # Add table in the corner
-        table = plt.table(
-            cellText=table_data,
-            colLabels=None,
-            loc='upper right',
-            cellLoc='left'
-        )
-        table.set_fontsize(8)  # Set font size
-        table.scale(1, 0.8)  # Stretch horizontally and vertically
-        table.auto_set_column_width([i for i in range(NCOLS)])  # Adjust column widths automatically
-        # Remove all borders
-        for cell in table.get_celld().values():
-            cell.set_linewidth(0)
-
-        # save histogram distances bar plot
-        plt.savefig('fig_PyDREAM_hist_distances_%s' % str.join('_', directories[sample_pair]))
-
-    if show_plot:
+    if show_plots:
         plt.show()
 
 
 if __name__ == '__main__':
 
     dirpath = 'SAVED'
-    directories = ['Flav_FAD', 'Flav_Fumarate', 'Flav_Fumarate_FAD', 'Flave_Fumarate_FAD_Time']
+    directories = ['Flav_FAD', 'Flav_Fumarate', 'Flav_Fumarate_FAD', 'Flav_Fumarate_FAD_Time']
     run_pydream_filename = 'run_complex_II_pydream.py'
-    bw_adjust = [3.0, 2.0, 2.0, 2.0]  # histogram smoothing parameters (default = 1, > 1 = smoother)
 
-    plot_histogram_overlays(dirpath, directories, run_pydream_filename, bw_adjust=bw_adjust, show_plot=True)
+    kwargs = {
+        'fontsizes': {'labels': 22, 'ticks': 18, 'title': 18, 'legend': 14},
+        'bw_adjust': [3.0, 2.0, 2.0, 2.0],  # histogram smoothing parameters (default = 1, > 1 = smoother)
+        'sharex': False
+    }
+
+    plot_hist_overlays_from_dirs(dirpath, directories, run_pydream_filename, show_plots=True, **kwargs)
