@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 import os
 import importlib
 import math
-from util import get_fig_ncols
+from pydream_util import get_fig_ncols
 
 
 def calc_self_distance(kde, n_samples, x_min, x_max, num_x_pts):
@@ -288,7 +288,7 @@ def plot_hist_overlays_from_dirs(dirpath, directories, run_pydream_filename, sho
 if __name__ == '__main__':
 
     dirpath = 'SAVED'
-    directories = ['Flav_FAD', 'Flav_Fumarate', 'Flav_Fumarate_FAD', 'Flav_Fumarate_FAD_Time']
+    directories = ['Flav_Fumarate', 'Flav_FAD']  # ['Flav_FAD', 'Flav_Fumarate', 'Flav_Fumarate_FAD', 'Flav_Fumarate_FAD_Time']
     run_pydream_filename = 'run_complex_II_pydream.py'
 
     kwargs = {

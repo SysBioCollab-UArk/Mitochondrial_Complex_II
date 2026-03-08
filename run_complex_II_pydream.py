@@ -4,6 +4,7 @@ from param_calibration import *
 from SIM_PROTOCOLS.sim_protocols import *
 
 model.parameters['AF2_init'].value = 0
+model.parameters['AF4_init'].value = 0
 model.parameters['BCD_init'].value = 0
 
 solver = ScipyOdeSimulator(model)

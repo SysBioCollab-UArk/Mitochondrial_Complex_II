@@ -13,7 +13,7 @@ Monomer('FAD', ['a', 'state'], {'state': ['nc', 'c']})
 Monomer('Dicarb', ['a'])
 Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
-Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
+# Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 
 # TODO:
 #  SDHA: 6 μM
@@ -23,19 +23,19 @@ Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
 #  Experimental Protocol: SDHA + FAD + SDHAF2 are mixed together first. Fumurate is then added at time 0 to initiate the
 #  reaction. We need a sequential injection simulation protocol with a pre equilibration step.
 
-Parameter('A_init', 6)  # μM #100
+Parameter('A_init', 6)  # μM
 Parameter('FAD_init', 100)  # μM
-Parameter('Dicarb_init', 0)  # μM #100
-Parameter('AF2_init', 10.4)  # μM #100
-Parameter('AF4_init', 0)  # μM #100
-Parameter('BCD_init', 0)  # μM #100
+Parameter('Dicarb_init', 0)  # μM
+Parameter('AF2_init', 10.4)  # μM
+Parameter('AF4_init', 0)  # μM
+Parameter('BCD_init', 0)  # μM
 
 Initial(A(af2=None, af4=None, fad=None, dicarb=None), A_init)
 Initial(FAD(a=None, state='nc'), FAD_init)
 Initial(Dicarb(a=None), Dicarb_init)
 Initial(AF2(a=None), AF2_init)
 Initial(AF4(a=None), AF4_init)
-Initial(BCD(a=None), BCD_init)
+# Initial(BCD(a=None), BCD_init)
 
 # Free A binding rules
 
@@ -367,12 +367,12 @@ Rule('A_FADc_AF4_unbinds_AF4',
 
 # Formation of partially active CII (w/ non-covalent FAD)
 # TODO: We are assuming that BCD binds to the af2 site on SDHA. Need to confirm this
-Parameter('k_a_fadnc_binds_bcd', 1)
+'''Parameter('k_a_fadnc_binds_bcd', 1)
 
 Rule('A_FADnc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') % BCD(a=2),
-     k_a_fadnc_binds_bcd)
+     k_a_fadnc_binds_bcd)'''
 
 # Parameter('k_a_fadnc_af2_binds_bcd', 1)
 # Rule('A_FADnc_AF2_binds_BCD',
@@ -395,11 +395,11 @@ Rule('A_FADnc_binds_BCD',
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
 #      k_a_fadc_dicarb_binds_bcd)
 
-Parameter('k_a_fadc_binds_bcd', 1)
+'''Parameter('k_a_fadc_binds_bcd', 1)
 Rule('A_FADc_binds_BCD',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + BCD(a=None) >>
      A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
-     k_a_fadc_binds_bcd)
+     k_a_fadc_binds_bcd)'''
 
 # Observables for creating plots like in Maklashina et al. (2022)
 Observable('FADc', FAD(state='c'))
@@ -410,30 +410,88 @@ if __name__ == "__main__":
 
     # Observables for various complexes within the pathway
     obs_to_plot = [
-         Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
-         Observable('SDHA_without_FAD', A(fad=None)),
-         Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
-         Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
-         Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
-         Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2))
+        Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
+        Observable('SDHA_without_FAD', A(fad=None)),
+        Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
+        Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
+        # Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
+        # Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2)),
+        # Observable('FAD_tot', FAD()),
+        #
+        Observable('SDHA_SDHAF4', A(af2=None, af4=1) % AF4(a=1)),
+        Observable('SDHA_SDHAF2', A(af2=1, af4=None) % AF2(a=1)),
     ]
 
     # simulation commands
-    tspan = np.linspace(0, 30, 301)
+    tspan = np.linspace(0, 0.5, 101)  # 30, 301)
     sim = ScipyOdeSimulator(model, tspan, verbose=True)
-    out = sim.run(initials={BCD(a=None): 0})
+    # out = sim.run(initials={BCD(a=None): 0, Dicarb(a=None): 10000})
+    out = sim.run(initials={Dicarb(a=None): 10000, AF4(a=None): 10})
+
+    plt.figure(constrained_layout=True)
+    for obs in obs_to_plot:
+        plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
+    plt.xlabel('time')
+    plt.ylabel('concentration')
+    plt.legend(loc='best')
+
+    #####
+    from molecular_weights import mol_weights_dict
+
+
+    def gaussian_peak(x, center, height, sigma):
+        return height * np.exp(-0.5 * ((x - center) / sigma) ** 2)
+
+
+    mol_weights = []
+    for i, sp in enumerate(model.species):
+        print('%d: %s, '  % (i, sp), end='')
+        mol_weight = 0
+        for molec in mol_weights_dict.keys():
+            if molec + '(' in str(sp):
+                mol_weight += mol_weights_dict[molec]
+        print('MW = %g kDa' % mol_weight)
+        mol_weights.append(mol_weight)
+    mol_weights = np.array(mol_weights)
+
+    plt.figure(constrained_layout=True)
+    sdha_idxs = [idx for idx, sp in enumerate(model.species) if 'A(' in str(sp)]
+    xvals = np.linspace(mol_weights[sdha_idxs].min() - 2, mol_weights[sdha_idxs].max() + 2, 10000)
+    total_conc = sum(out.species[-1][sdha_idxs])
+    sigma = 1  #0.12  # adjust until it looks right
+    yvals = np.zeros_like(xvals)
+    for mw, conc in zip(mol_weights[sdha_idxs], out.species[-1][sdha_idxs] / total_conc):
+        yvals += gaussian_peak(xvals, mw, conc, sigma)
+
+    plt.plot(xvals, yvals, lw=2, label="Broadened spectrum")
+    plt.vlines(mol_weights[sdha_idxs], 0, 0.4, color='gray', alpha=0.4, label="Stick spectrum")  # TODO
+    plt.plot(mol_weights[sdha_idxs], out.species[-1][sdha_idxs] / total_conc, 'o')
+    plt.xlabel('molecular weight (kDa)')
+    plt.ylabel('relative abundance')
+    plt.legend(loc='best')
+
+    plt.show()
+    quit()
+    #####
+
+    # Plot FADc/FAD_tot (fraction of flavinylation)
+    plt.figure(constrained_layout=True)
+    plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'], lw=2, label='FADc/FAD_tot')
+    plt.xlabel('time')
+    plt.ylabel('fraction')
+    plt.legend(loc='best')
 
     # Plot various complexes within the pathway
+    plt.figure(constrained_layout=True)
     for obs in obs_to_plot:
         plt.plot(tspan, out.observables[obs.name], lw=2, label=obs.name)
     plt.xlabel('time')
     plt.ylabel('amount')
     plt.legend(loc='best')
-    plt.tight_layout()
     plt.savefig('complexes.pdf', format='pdf')
 
     # Plot % flavinylation TODO: figure 3A
-    plt.figure('flavinylation')
+    plt.figure('flavinylation', constrained_layout=True)
     idxs = [i for i in range(0, 301, 30)]
     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='b', lw=2)
     # plt.plot(tspan, out.expressions["pct_flavinylation"], color='r')
@@ -448,11 +506,10 @@ if __name__ == "__main__":
     plt.xlabel('time')
     plt.ylabel('flavinylation, %')
     plt.legend(loc=0)
-    plt.tight_layout()
     plt.savefig('flavinylation.pdf', format='pdf')
 
-    # Run Simulations with different initial amounts of Dicarb.TODO: Figure 3B
-    plt.figure('dicarb')
+    # Run Simulations with different initial amounts of Dicarb. TODO: Figure 3B
+    plt.figure('dicarb', constrained_layout=True)
     # loop over different initial amounts of dicarb and run simulations with and without AF2
     tspan = np.linspace(0, 30, 301)
     flav1 = []
@@ -469,11 +526,10 @@ if __name__ == "__main__":
     plt.xlabel('dicarboxylate, conc')
     plt.ylabel('flavinylation, %')
     plt.legend(loc=0)
-    plt.tight_layout()
     plt.savefig('dicarb.pdf', format='pdf')
 
     # Run Simulations with different initial amounts of FAD. TODO: Figure 3C
-    plt.figure('FAD')
+    plt.figure('FAD', constrained_layout=True)
     # loop over different initial amounts of dicarb and run simulations with and without AF2
     tspan = np.linspace(0, 30, 301)
     flav1 = []
@@ -495,7 +551,6 @@ if __name__ == "__main__":
     plt.ylabel('flavinylation, %')
     plt.ylim(bottom=-5, top=105)
     plt.legend(loc=0)
-    plt.tight_layout()
     plt.savefig('FAD.pdf', format="pdf")
 
     plt.show()

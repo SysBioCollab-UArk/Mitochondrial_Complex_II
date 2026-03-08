@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from util import plot_from_simdata
+from pydream_util import plot_from_simdata
 import numpy as np
 
 basepath = 'SAVED'
@@ -33,4 +33,4 @@ expt_doses = [
 tc_ids = ['time_wAF2', 'time_noAF2']
 
 plot_from_simdata(basepath, directories, run_pydream_filename, expt_doses=expt_doses, tc_ids=tc_ids,
-                  label_dict=label_dict)
+                  label_dict=label_dict, figsize=(6.4 * 0.7, 4.8 * 0.7))
