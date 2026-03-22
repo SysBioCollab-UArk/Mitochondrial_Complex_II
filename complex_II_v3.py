@@ -13,7 +13,7 @@ Monomer('FAD', ['a', 'state'], {'state': ['nc', 'c']})
 Monomer('Dicarb', ['a'])
 Monomer('AF2', ['a'])
 Monomer('AF4', ['a'])
-# Monomer('BCD', ['a'])  # BCD and AF2 bind to the same site on A
+Monomer('BCD', ['af2', 'af4', 'dicarb'])  # BCD and AF2 bind to the same site on A
 
 # TODO:
 #  SDHA: 6 μM
@@ -35,7 +35,7 @@ Initial(FAD(a=None, state='nc'), FAD_init)
 Initial(Dicarb(a=None), Dicarb_init)
 Initial(AF2(a=None), AF2_init)
 Initial(AF4(a=None), AF4_init)
-# Initial(BCD(a=None), BCD_init)
+Initial(BCD(af2=None, af4=None, dicarb=None), BCD_init)
 
 # Free A binding rules
 
@@ -48,13 +48,11 @@ Parameter('kr_a_binds_af2', 1)
 Parameter('kf_a_binds_af4', 1)
 Parameter('kr_a_binds_af4', 1)
 
-# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_binds_FADnc',
      A(af2=None, af4=None, fad=None, dicarb=None) + FAD(a=None, state='nc') |
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc'),
      kf_a_binds_fadnc, kr_a_binds_fadnc)
 
-# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_binds_Dicarb',
      A(af2=None, af4=None, fad=None, dicarb=None) + Dicarb(a=None) |
      A(af2=None, af4=None, fad=None, dicarb=1) % Dicarb(a=1),
@@ -79,7 +77,6 @@ Parameter('kr_a_fadnc_binds_af4', 10)  # *
 Parameter('kf_a_fadnc_binds_af2', 10)  # *
 Parameter('kr_a_fadnc_binds_af2', 1)
 
-# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_FADnc_binds_Dicarb',
      A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + Dicarb(a=None) |
      A(af2=None, af4=None, fad=1, dicarb=2) % FAD(a=1, state='nc') % Dicarb(a=2),
@@ -104,7 +101,6 @@ Parameter('kr_a_dicarb_binds_af2', 1)
 Parameter('kf_a_dicarb_binds_af4', 1)
 Parameter('kr_a_dicarb_binds_af4', 1)
 
-# TODO: increase the binding rate for this rule to get more A_FADnc_Dicarb
 Rule('A_Dicarb_binds_FADnc',
      A(af2=None, af4=None, fad=None, dicarb=1) % Dicarb(a=1) + FAD(a=None, state='nc') |
      A(af2=None, af4=None, fad=2, dicarb=1) % Dicarb(a=1) % FAD(a=2, state='nc'),
@@ -364,15 +360,21 @@ Rule('A_FADc_AF4_unbinds_AF4',
      k_a_fadc_af4_unbinds_af4)
 
 ##########
+# Rule to break the covalent bond on the SDHA-FADc complex that forms right before active CII formation
+Parameter('k_a_fadc_to_a_fadnc', 10)
+Rule('A_FADc_to_A_FADnc',
+     A(af4=None, af2=None, dicarb=None, fad=1) % FAD(a=1, state='c') >>
+     A(af4=None, af2=None, dicarb=None, fad=1) % FAD(a=1, state='nc'),
+     k_a_fadc_to_a_fadnc)
 
 # Formation of partially active CII (w/ non-covalent FAD)
-# TODO: We are assuming that BCD binds to the af2 site on SDHA. Need to confirm this
-'''Parameter('k_a_fadnc_binds_bcd', 1)
+Parameter('kf_a_fadnc_binds_bcd', 1)
+Parameter('kr_a_fadnc_binds_bcd', 1)
 
 Rule('A_FADnc_binds_BCD',
-     A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + BCD(a=None) >>
-     A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') % BCD(a=2),
-     k_a_fadnc_binds_bcd)'''
+     A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='nc') + BCD(af2=None, af4=None, dicarb=None) |
+     A(af2=2, af4=3, fad=1, dicarb=4) % FAD(a=1, state='nc') % BCD(af2=2, af4=3, dicarb=4),
+     kf_a_fadnc_binds_bcd, kr_a_fadnc_binds_bcd)
 
 # Parameter('k_a_fadnc_af2_binds_bcd', 1)
 # Rule('A_FADnc_AF2_binds_BCD',
@@ -395,11 +397,12 @@ Rule('A_FADnc_binds_BCD',
 #      A(af2=None, af4=None, fad=1, dicarb=ANY, bcd=2) % FAD(a=1, state='c') % BCD(a=2),
 #      k_a_fadc_dicarb_binds_bcd)
 
-'''Parameter('k_a_fadc_binds_bcd', 1)
+Parameter('kf_a_fadc_binds_bcd', 1)
+Parameter('kr_a_fadc_binds_bcd', 1)
 Rule('A_FADc_binds_BCD',
-     A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + BCD(a=None) >>
-     A(af2=2, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') % BCD(a=2),
-     k_a_fadc_binds_bcd)'''
+     A(af2=None, af4=None, fad=1, dicarb=None) % FAD(a=1, state='c') + BCD(af2=None, af4=None, dicarb=None) |
+     A(af2=2, af4=3, fad=1, dicarb=4) % FAD(a=1, state='c') % BCD(af2=2, af4=3, dicarb=4),
+     kf_a_fadc_binds_bcd, kr_a_fadc_binds_bcd)
 
 # Observables for creating plots like in Maklashina et al. (2022)
 Observable('FADc', FAD(state='c'))
@@ -409,21 +412,21 @@ Expression("pct_flavinylation", FADc / SDHA_tot * 100)
 if __name__ == "__main__":
 
     # Observables for various complexes within the pathway
+    Observable('FAD_tot', FAD())
     obs_to_plot = [
         Observable('Free_SDHA', A(af2=None, af4=None, fad=None, dicarb=None)),
         Observable('SDHA_without_FAD', A(fad=None)),
-        Observable('SDHA_FADnc', A(fad=1) % FAD(a=1, state='nc')),
-        Observable('SDHA_FADc', A(fad=1) % FAD(a=1, state='c')),
-        # Observable('CII_with_FADnc', A(fad=1, af2=2) % FAD(a=1, state='nc') % BCD(a=2)),
-        # Observable('Active_CII', A(fad=1, af2=2) % FAD(a=1, state='c') % BCD(a=2)),
-        # Observable('FAD_tot', FAD()),
+        Observable('SDHA_FADnc', A(fad=1, af2=None, af4=None,dicarb=None) % FAD(a=1, state='nc')),
+        Observable('SDHA_FADc', A(fad=1, af2=None, af4=None,dicarb=None) % FAD(a=1, state='c')),
+        Observable('CII_with_FADnc', A(fad=1, af2=2, af4=3, dicarb=4) % FAD(a=1, state='nc') % BCD(af2=2, af4=3, dicarb=4)),
+        Observable('Active_CII', A(fad=1, af2=2, af4=3, dicarb=4) % FAD(a=1, state='c') % BCD(af2=2, af4=3, dicarb=4)),
         #
         Observable('SDHA_SDHAF4', A(af2=None, af4=1) % AF4(a=1)),
         Observable('SDHA_SDHAF2', A(af2=1, af4=None) % AF2(a=1)),
     ]
 
     # simulation commands
-    tspan = np.linspace(0, 0.5, 101)  # 30, 301)
+    tspan = np.linspace(0, 30, 301)  # 30, 301)
     sim = ScipyOdeSimulator(model, tspan, verbose=True)
     # out = sim.run(initials={BCD(a=None): 0, Dicarb(a=None): 10000})
     out = sim.run(initials={Dicarb(a=None): 10000, AF4(a=None): 10})
@@ -436,6 +439,7 @@ if __name__ == "__main__":
     plt.legend(loc='best')
 
     #####
+    '''
     from molecular_weights import mol_weights_dict
 
 
@@ -458,7 +462,7 @@ if __name__ == "__main__":
     sdha_idxs = [idx for idx, sp in enumerate(model.species) if 'A(' in str(sp)]
     xvals = np.linspace(mol_weights[sdha_idxs].min() - 2, mol_weights[sdha_idxs].max() + 2, 10000)
     total_conc = sum(out.species[-1][sdha_idxs])
-    sigma = 1  #0.12  # adjust until it looks right
+    sigma = 2  #0.12  # adjust until it looks right
     yvals = np.zeros_like(xvals)
     for mw, conc in zip(mol_weights[sdha_idxs], out.species[-1][sdha_idxs] / total_conc):
         yvals += gaussian_peak(xvals, mw, conc, sigma)
@@ -472,6 +476,8 @@ if __name__ == "__main__":
 
     plt.show()
     quit()
+    '''
+
     #####
 
     # Plot FADc/FAD_tot (fraction of flavinylation)
@@ -498,7 +504,7 @@ if __name__ == "__main__":
     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='b',
              lw=2, label='+ AF2')
     # Change AF2 concentration to zero and run again
-    out = sim.run(initials={BCD(a=None): 0, AF2(a=None): 0})
+    out = sim.run(initials={BCD(af2=None, af4=None, dicarb=None): 0, AF2(a=None): 0})
     plt.plot(tspan, out.observables['FADc'] / out.observables['FAD_tot'] * 100, color='k', lw=2)
     plt.plot(tspan[idxs], out.observables['FADc'][idxs] / out.observables['FAD_tot'][idxs] * 100, "o", color='k',
              lw=2, label='- AF2')
@@ -516,10 +522,10 @@ if __name__ == "__main__":
     flav2 = []
     dicarb = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
     for d in dicarb:
-        out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, Dicarb(a=None): d})
+        out1 = sim.run(tspan=tspan, initials={BCD(af2=None, af4=None, dicarb=None): 0, Dicarb(a=None): d})
         # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
         flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
-        out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, Dicarb(a=None): d, AF2(a=None): 0})
+        out2 = sim.run(tspan=tspan, initials={BCD(af2=None, af4=None, dicarb=None): 0, Dicarb(a=None): d, AF2(a=None): 0})
         flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
     plt.plot(dicarb, flav1, "-o", color='b', lw=2, label='+ AF2')
     plt.plot(dicarb, flav2, "-o", color='k', lw=2, label='- AF2')
@@ -538,10 +544,10 @@ if __name__ == "__main__":
     fadtot = []
     fad = np.append(np.arange(0, 10, 1), np.arange(10, 100, 10))
     for f in fad:
-        out1 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f})
+        out1 = sim.run(tspan=tspan, initials={BCD(af2=None, af4=None, dicarb=None): 0, FAD(a=None, state="nc"): f})
         # plt.plot(tspan, out1.observables['FADc'] / out1.observables['FAD_tot'] * 100, color='b', lw=2, label='+ AF2')
         flav1.append(out1.observables['FADc'][-1] / out1.observables['FAD_tot'][-1] * 100)
-        out2 = sim.run(tspan=tspan, initials={BCD(a=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
+        out2 = sim.run(tspan=tspan, initials={BCD(af2=None, af4=None, dicarb=None): 0, FAD(a=None, state="nc"): f, AF2(a=None): 0})
         flav2.append(out2.observables['FADc'][-1] / out2.observables['FAD_tot'][-1] * 100)
         fadc.append(out2.observables['FADc'][-1])
         fadtot.append(out2.observables['FAD_tot'][-1])
